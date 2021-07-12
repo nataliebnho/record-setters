@@ -23,26 +23,21 @@ import org.jetbrains.annotations.NotNull;
 
 public class HomeFragment extends Fragment {
 
-    private HomeViewModel homeViewModel;
-    private FragmentHomeBinding binding;
     Button btnLogout;
+
+    public HomeFragment() {
+        // Required empty public constructor
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+    }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        homeViewModel =
-                new ViewModelProvider(this).get(HomeViewModel.class);
-
-        binding = FragmentHomeBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
-
-        final TextView textView = binding.textHome;
-        homeViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(s);
-            }
-        });
-        return root;
+        return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
     @Override
@@ -61,9 +56,4 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
 }
