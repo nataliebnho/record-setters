@@ -6,4 +6,65 @@
     android:layout_height="match_parent"
     tools:context=".ui.dashboard.CreateFragment">
 
+    <ImageButton
+        android:id="@+id/btnTakeVideo"
+        android:layout_width="wrap_content"
+        android:layout_height="41dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="121dp"
+        android:layout_marginTop="147dp"
+        android:backgroundTint="#2196F3"
+        android:src="@android:drawable/ic_menu_camera" />
+
+    <TextView
+        android:id="@+id/tvTakeVideo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="186dp"
+        android:layout_marginTop="153dp"
+        android:text="Take Video"
+        android:textSize="20sp" />
+
+    <VideoView
+        android:id="@+id/vvVideoToPost"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/etCategory"
+        android:layout_below="@id/btnTakeVideo"
+        android:layout_centerInParent="true" />
+
+    <EditText
+        android:id="@+id/etCategory"
+        android:layout_width="310dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="238dp"
+        android:ems="10"
+        android:hint="Enter your category"
+        android:inputType="textPersonName" />
+
+    <EditText
+        android:id="@+id/etCaption"
+        android:layout_width="310dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="177dp"
+        android:ems="10"
+        android:hint="Write a caption"
+        android:inputType="textPersonName" />
+
+    <Button
+        android:id="@+id/btnPost"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="96dp"
+        android:text="POST" />
+
 </RelativeLayout>
