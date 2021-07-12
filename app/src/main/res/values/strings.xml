@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">the-commoners-guinness</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+
+    <string name="back4app_server_url">https://parseapi.back4app.com/</string>
+    <string name="back4app_app_id">AsyBxuhEK0w8xAcDzFc6CvnyDgO6dwrp7VH2TSeo</string>
+    <string name="back4app_client_key">wPtiiwLHbkRzAoYwEeLOSKFUmLEMN59oMU9qqZGA</string>
+</resources>
