@@ -1,9 +1,8 @@
 package com.example.the_commoners_guinness.ui.dashboard;
 
-import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -93,6 +92,8 @@ public class CreateFragment extends Fragment {
                 String category = etCategory.getText().toString();
 
                 savePost(ParseUser.getCurrentUser(), caption, category);
+                etCaption.setText("");
+                vvVideoToPost.setBackgroundResource(0);
             }
         });
 
@@ -100,6 +101,15 @@ public class CreateFragment extends Fragment {
     public void startRecordingVideo() {
         if (getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)) {
             Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+            //mediaFile = getPhotoFileUri(photoFileName);
+
+            mediaFile = new File(getContext().getExternalFilesDir(Environment.DIRECTORY_MOVIES), "share_image_" + System.currentTimeMillis() + ".mp4");
+            Log.i("Test MediaFile:", mediaFile.toString());
+            // wrap File object into a content provider. NOTE: authority here should match authority in manifest declaration
+            Uri fileProvider = FileProvider.getUriForFile(getActivity(), "com.codepath.fileprovider.the-commoners-guinness", mediaFile);
+            Log.i("Fileprovider: ", fileProvider.toString());
+
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider);
             startActivityForResult(intent, VIDEO_CAPTURE);
 
         } else {
@@ -111,13 +121,11 @@ public class CreateFragment extends Fragment {
         if (requestCode == VIDEO_CAPTURE) {
             if (resultCode == getActivity().RESULT_OK) {
                 Toast.makeText(getContext(), "Video has been saved to:\n" + data.getData(), Toast.LENGTH_LONG).show();
-                //playbackRecordedVideo();
                 VideoView videoView = getView().findViewById(R.id.vvVideoToPost);
                 videoView.setVideoURI(data.getData());
                 videoView.setMediaController(new MediaController(getContext()));
                 videoView.requestFocus();
                 videoView.start();
-                mediaFile = new File(data.getData().getPath());
             } else if (resultCode == getActivity().RESULT_CANCELED) {
                 Toast.makeText(getContext(), "Video recording cancelled.",  Toast.LENGTH_LONG).show();
             } else {
@@ -126,13 +134,33 @@ public class CreateFragment extends Fragment {
         }
     }
 
+    private File getPhotoFileUri(String photoFileName) {
+        // Get safe storage directory for photos
+        // Use `getExternalFilesDir` on Context to access package-specific directories.
+        // This way, we don't need to request external read/write runtime permissions.
+        File mediaStorageDir = new File(getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES), TAG);
+
+        // Create the storage directory if it does not exist
+        if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
+            Log.d(TAG, "failed to create directory");
+        }
+
+        // Return the file target for the photo based on filename
+        File file = new File(mediaStorageDir.getPath() + File.separator + photoFileName);
+
+        Log.i(TAG, "This is the file: " + file.toString());
+
+        return new File(mediaStorageDir.getPath() + File.separator + photoFileName);
+    }
+
     private void savePost(ParseUser currentUser, String caption, String categoryName) {
         Post post = new Post();
         post.setCaption(caption);
         Category category = new Category();
         category.setName(categoryName);
         post.setCategory(category);
-        //post.setVideo(new ParseFile(mediaFile));
+        Log.i("FINALMEDIAFILE", mediaFile.toString());
+        post.setVideo(new ParseFile(mediaFile));
         post.setUser(currentUser);
 
         post.saveInBackground(new SaveCallback() {
@@ -143,8 +171,6 @@ public class CreateFragment extends Fragment {
                     Toast.makeText(getContext(), "Error while saving!", Toast.LENGTH_SHORT).show();
                 }
                 Log.i(APP_TAG, "Post save was successful!");
-                //getView().findViewById(R.id.etCaption);
-               // ivPhotoToPost.setImageResource(0);
             }
         });
     }

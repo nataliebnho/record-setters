@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.the_commoners_guinness.LoginActivity;
 import com.example.the_commoners_guinness.R;
@@ -24,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 public class HomeFragment extends Fragment {
 
     Button btnLogout;
+    RecyclerView rvPosts;
 
     public HomeFragment() {
         // Required empty public constructor
