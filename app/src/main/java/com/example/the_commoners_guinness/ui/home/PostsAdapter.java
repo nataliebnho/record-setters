@@ -1,6 +1,7 @@
 package com.example.the_commoners_guinness.ui.home;
 
 import android.content.Context;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -84,6 +85,12 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             vvPostVideo.setVideoURI(Uri.parse(file.getUrl()));
             vvPostVideo.requestFocus();
             vvPostVideo.start();
+            vvPostVideo.setOnCompletionListener ( new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mediaPlayer) {
+                    vvPostVideo.start();
+                }
+            });
         }
     }
 

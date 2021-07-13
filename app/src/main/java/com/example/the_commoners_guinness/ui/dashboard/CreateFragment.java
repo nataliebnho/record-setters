@@ -158,6 +158,7 @@ public class CreateFragment extends Fragment {
         post.setCaption(caption);
         Category category = new Category();
         category.setName(categoryName);
+        category.addPosts(post);
         post.setCategory(category);
         Log.i("FINALMEDIAFILE", mediaFile.toString());
         post.setVideo(new ParseFile(mediaFile));
