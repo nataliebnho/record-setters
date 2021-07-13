@@ -17,6 +17,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.the_commoners_guinness.LoginActivity;
 import com.example.the_commoners_guinness.Post;
@@ -36,6 +37,7 @@ public class HomeFragment extends Fragment {
 
     Button btnLogout;
     RecyclerView rvPosts;
+    SwipeRefreshLayout swipeContainer;
 
     protected PostsAdapter adapter;
     protected List<Post> allPosts;
@@ -67,6 +69,7 @@ public class HomeFragment extends Fragment {
         rvPosts.setAdapter(adapter);
         rvPosts.setLayoutManager(new LinearLayoutManager(getContext()));
 
+        configureSwipeContainer(view);
         queryPosts();
 
         btnLogout = view.findViewById(R.id.btnLogout);
@@ -81,11 +84,32 @@ public class HomeFragment extends Fragment {
         });
     }
 
+    private void configureSwipeContainer(View view) {
+        swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer);
+
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                fetchTimelineAsync(0);
+            }
+        });
+        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+    }
+
+    private void fetchTimelineAsync (int i) {
+        adapter.clear();
+        queryPosts();
+        swipeContainer.setRefreshing(false);
+    }
+
     private void queryPosts() {
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         query.include(Post.KEY_USER);
         query.setLimit(20);
-        query.addAscendingOrder("createdAt");
+        query.addDescendingOrder("createdAt");
 
         query.findInBackground(new FindCallback<Post>() {
             @Override
