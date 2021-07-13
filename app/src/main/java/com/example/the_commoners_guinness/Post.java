@@ -38,9 +38,7 @@ public class Post extends ParseObject {
         put(KEY_USER, user);
     }
 
-    //public Category getCategory() {
-//        return getCategory(KEY_CATEGORY);
-//    }
+    public Category getCategory() { return (Category) getParseObject(KEY_CATEGORY); }
 
     public void setCategory(Category category) { put(KEY_CATEGORY, category); }
 

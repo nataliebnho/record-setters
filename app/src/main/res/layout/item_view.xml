@@ -1,6 +1,105 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cvItem"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:foreground="?android:attr/selectableItemBackground"
+    card_view:cardCornerRadius="8dp"
+    card_view:cardElevation="8dp">
 
-</RelativeLayout>
+    <!-- Main Content View -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/ivLike"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_below="@id/ivVote"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="124dp"
+            android:layout_marginEnd="35dp"
+            card_view:srcCompat="@drawable/ufi_heart" />
+
+        <ImageView
+            android:id="@+id/ivComment"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_below="@id/ivLike"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="36dp"
+            card_view:srcCompat="@drawable/ufi_comment" />
+
+        <MediaController
+            android:id="@+id/mediaController"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true" >
+        </MediaController>
+
+        <VideoView
+            android:id="@+id/vvPostVideo"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_below="@id/tvCategory"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="15dp"></VideoView>
+
+        <TextView
+            android:id="@+id/tvCategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            tools:text="Category" />
+
+        <TextView
+            android:id="@+id/tvUsername"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/vvPostVideo"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:text="TextView"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvCaption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/vvPostVideo"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_toRightOf="@id/tvUsername"
+            android:text="TextView" />
+
+        <ImageView
+            android:id="@+id/ivChallenge"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_below="@id/tvCaption"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="21dp"
+            card_view:srcCompat="@drawable/crown" />
+
+        <ImageView
+            android:id="@+id/ivVote"
+            android:layout_width="71dp"
+            android:layout_height="71dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="59dp"
+            android:layout_marginEnd="13dp"
+            card_view:srcCompat="@drawable/vote" />
+
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>

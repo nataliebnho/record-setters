@@ -26,7 +26,6 @@ import com.parse.SignUpCallback;
 public class LoginActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
-    private ActivityLoginBinding binding;
 
     EditText etUsername;
     EditText etPassword;
@@ -36,9 +35,11 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login);
 
-        binding = ActivityLoginBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        if (ParseUser.getCurrentUser() != null) {
+            goMainActivity();
+        }
 
         etUsername = findViewById(R.id.etUsername);
         etPassword = findViewById(R.id.etPassword);
