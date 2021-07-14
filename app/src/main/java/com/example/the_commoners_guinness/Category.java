@@ -3,10 +3,13 @@ package com.example.the_commoners_guinness;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 
+import org.parceler.Parcel;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
+@Parcel (analyze = Category.class)
 @ParseClassName("Category")
 public class Category extends ParseObject {
 

@@ -7,7 +7,7 @@
     tools:context=".ui.dashboard.CreateFragment">
 
     <ImageButton
-        android:id="@+id/btnTakeVideo"
+        android:id="@+id/btnTakeVideoChallenge"
         android:layout_width="wrap_content"
         android:layout_height="41dp"
         android:layout_alignParentStart="true"
@@ -18,7 +18,7 @@
         android:src="@android:drawable/ic_menu_camera" />
 
     <TextView
-        android:id="@+id/tvTakeVideo"
+        android:id="@+id/tvTakeVideoChallenge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
@@ -29,11 +29,11 @@
         android:textSize="20sp" />
 
     <VideoView
-        android:id="@+id/vvVideoToPost"
+        android:id="@+id/vvVideoToPostChallenge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@id/etCategory"
-        android:layout_below="@id/btnTakeVideo"
+        android:layout_below="@id/btnTakeVideoChallenge"
         android:layout_centerInParent="true" />
 
     <EditText
@@ -48,7 +48,7 @@
         android:inputType="textPersonName" />
 
     <EditText
-        android:id="@+id/etCaption"
+        android:id="@+id/etCaptionChallenge"
         android:layout_width="310dp"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -59,7 +59,7 @@
         android:inputType="textPersonName" />
 
     <Button
-        android:id="@+id/btnPost"
+        android:id="@+id/btnPostChallenge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

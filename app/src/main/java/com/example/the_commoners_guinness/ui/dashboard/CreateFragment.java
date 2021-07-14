@@ -34,15 +34,10 @@ import com.parse.SaveCallback;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.Locale;
-
-import permissions.dispatcher.NeedsPermission;
 
 public class CreateFragment extends Fragment {
 
     public final String APP_TAG = "CreateFragment";
-    public final String TAG = "CreateFragment";
     private static final int VIDEO_CAPTURE = 101;
     ImageButton btnTakeVideo;
     Button btnShare;
@@ -50,7 +45,6 @@ public class CreateFragment extends Fragment {
     File mediaFile;
     EditText etCaption;
     EditText etCategory;
-    Post finalPost;
 
     public CreateFragment() {
         // Required empty public constructor
@@ -70,11 +64,11 @@ public class CreateFragment extends Fragment {
     public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable
             Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        btnTakeVideo = view.findViewById(R.id.btnTakeVideo);
-        vvVideoToPost = view.findViewById(R.id.vvVideoToPost);
-        etCaption = view.findViewById(R.id.etCaption);
+        btnTakeVideo = view.findViewById(R.id.btnTakeVideoChallenge);
+        vvVideoToPost = view.findViewById(R.id.vvVideoToPostChallenge);
+        etCaption = view.findViewById(R.id.etCaptionChallenge);
         etCategory = view.findViewById(R.id.etCategory);
-        btnShare = view.findViewById(R.id.btnPost);
+        btnShare = view.findViewById(R.id.btnPostChallenge);
 
         btnTakeVideo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -120,7 +114,7 @@ public class CreateFragment extends Fragment {
         if (requestCode == VIDEO_CAPTURE) {
             if (resultCode == getActivity().RESULT_OK) {
                 Toast.makeText(getContext(), "Video has been saved to:\n" + data.getData(), Toast.LENGTH_LONG).show();
-                VideoView videoView = getView().findViewById(R.id.vvVideoToPost);
+                VideoView videoView = getView().findViewById(R.id.vvVideoToPostChallenge);
                 videoView.setVideoURI(data.getData());
                 videoView.setMediaController(new MediaController(getContext()));
                 videoView.requestFocus();

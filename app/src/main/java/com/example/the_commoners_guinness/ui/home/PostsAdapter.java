@@ -24,6 +24,7 @@ import com.parse.ParseFile;
 import com.parse.ParseObject;
 
 import org.jetbrains.annotations.NotNull;
+import org.parceler.Parcels;
 
 import java.util.List;
 
@@ -105,6 +106,13 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                 @Override
                 public void onClick(View v) {
                     Intent i = new Intent(itemView.getContext(), ChallengeActivity.class);
+//                    try {
+//                        i.putExtra("CategoryName", category.fetchIfNeeded().getString("name"));
+//                        i.putExtra("CategoryID", category.fetchIfNeeded().getObjectId());
+                    i.putExtra("Category", Parcels.wrap(category));
+//                    } catch (ParseException e) {
+//                        e.printStackTrace();
+//                    }
                     context.startActivity(i);
                 }
             });

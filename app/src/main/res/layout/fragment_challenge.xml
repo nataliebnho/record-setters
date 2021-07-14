@@ -5,11 +5,74 @@
     android:layout_height="match_parent"
     tools:context=".ChallengeFragment">
 
-    <!-- TODO: Update blank fragment layout -->
+    <ImageButton
+        android:id="@+id/btnTakeVideoChallenge"
+        android:layout_width="wrap_content"
+        android:layout_height="41dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="121dp"
+        android:layout_marginTop="147dp"
+        android:backgroundTint="#2196F3"
+        android:src="@android:drawable/ic_menu_camera" />
+
+    <TextView
+        android:id="@+id/tvTakeVideoChallenge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="186dp"
+        android:layout_marginTop="153dp"
+        android:text="Take Video"
+        android:textSize="20sp" />
+
+    <VideoView
+        android:id="@+id/vvVideoToPostChallenge"
+        android:layout_width="232dp"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/etCaptionChallenge"
+        android:layout_below="@id/btnTakeVideoChallenge"
+        android:layout_centerInParent="true"
+        android:layout_marginBottom="10dp" />
+
+    <EditText
+        android:id="@+id/etCaptionChallenge"
+        android:layout_width="310dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="177dp"
+        android:ems="10"
+        android:hint="Write a caption"
+        android:inputType="textPersonName" />
+
+    <Button
+        android:id="@+id/btnPostChallenge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="96dp"
+        android:text="POST" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="This is the challenge fragment" />
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="54dp"
+        android:text="Category:" />
+
+    <TextView
+        android:id="@+id/tvChallengeCategory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="80dp"
+        android:text="TextView"
+        android:textSize="24sp"
+        android:textStyle="bold" />
 
 </RelativeLayout>
