@@ -78,10 +78,12 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             tvUsername.setText(post.getUser().getUsername());
             tvCaption.setText(post.getCaption());
             Category category = post.getCategory();
+            if (category.getPosts() == null || !category.getPosts().contains(post)) {
+                category.setPosts(post);
+            }
             tvCategory.setText(category.fetchIfNeeded().getString("name"));
 
             ParseFile file = post.getParseFile("video");
-            Log.i(TAG, file.getUrl());
             vvPostVideo.setVideoURI(Uri.parse(file.getUrl()));
             vvPostVideo.requestFocus();
             vvPostVideo.start();

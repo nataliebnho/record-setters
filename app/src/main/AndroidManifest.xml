@@ -7,7 +7,6 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
-
     <queries>
 
         <!-- Camera -->
@@ -24,9 +23,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Thecommonersguinness">
+        <activity android:name=".ChallengeActivity"></activity>
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name"></activity>
+            android:label="@string/app_name" />
         <activity
             android:name=".LoginActivity"
             android:label="@string/app_name"
@@ -37,6 +37,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.codepath.fileprovider.the-commoners-guinness"
@@ -46,7 +47,17 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/fileprovider" />
         </provider>
-
+        <!--
+provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.codepath.fileprovider.the-commoners-guinness"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/fileproviderprofile" />
+        </provider
+        -->
         <meta-data
             android:name="com.parse.SERVER_URL"
             android:value="@string/back4app_server_url" />
@@ -59,13 +70,3 @@
     </application>
 
 </manifest>
-
-
-
-<!--<activity-->
-<!--android:name=".LoginActivity"-->
-<!--android:label="@string/title_activity_login"-->
-<!--android:theme="@style/Theme.Thecommonersguinness.NoActionBar"></activity>-->
-<!--<activity-->
-<!--android:name=".MainActivity"-->
-<!--android:label="@string/app_name">-->

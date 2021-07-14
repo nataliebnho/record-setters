@@ -20,8 +20,10 @@ public class Category extends ParseObject {
         return getList(KEY_POSTS);
     }
 
-    public void addPosts(Post post) {
-        add(KEY_POSTS, post);
+    public void setPosts(Post post) {
+        if (getPosts() != null) {
+            getPosts().add(0, post);
+        }
     }
 
     public String getName() {
@@ -31,9 +33,6 @@ public class Category extends ParseObject {
     public void setName(String name) {
         put(KEY_NAME, name);
     }
-
-
-
 
 
 }

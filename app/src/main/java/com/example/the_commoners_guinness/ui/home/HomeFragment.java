@@ -22,7 +22,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.the_commoners_guinness.LoginActivity;
 import com.example.the_commoners_guinness.Post;
 import com.example.the_commoners_guinness.R;
-import com.example.the_commoners_guinness.databinding.FragmentHomeBinding;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;

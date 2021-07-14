@@ -3,8 +3,6 @@ package com.example.the_commoners_guinness.ui.dashboard;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -43,7 +41,6 @@ import permissions.dispatcher.NeedsPermission;
 
 public class CreateFragment extends Fragment {
 
-
     public final String APP_TAG = "CreateFragment";
     public final String TAG = "CreateFragment";
     private static final int VIDEO_CAPTURE = 101;
@@ -53,8 +50,7 @@ public class CreateFragment extends Fragment {
     File mediaFile;
     EditText etCaption;
     EditText etCategory;
-    String photoFileName = "video.mp4";
-    int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 101;
+    Post finalPost;
 
     public CreateFragment() {
         // Required empty public constructor
@@ -71,7 +67,8 @@ public class CreateFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable
+            Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         btnTakeVideo = view.findViewById(R.id.btnTakeVideo);
         vvVideoToPost = view.findViewById(R.id.vvVideoToPost);
@@ -85,6 +82,7 @@ public class CreateFragment extends Fragment {
                 startRecordingVideo();
             }
         });
+
         btnShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -93,11 +91,12 @@ public class CreateFragment extends Fragment {
 
                 savePost(ParseUser.getCurrentUser(), caption, category);
                 etCaption.setText("");
+                etCategory.setText("");
                 vvVideoToPost.setBackgroundResource(0);
             }
         });
-
     }
+
     public void startRecordingVideo() {
         if (getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)) {
             Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
@@ -134,33 +133,15 @@ public class CreateFragment extends Fragment {
         }
     }
 
-    private File getPhotoFileUri(String photoFileName) {
-        // Get safe storage directory for photos
-        // Use `getExternalFilesDir` on Context to access package-specific directories.
-        // This way, we don't need to request external read/write runtime permissions.
-        File mediaStorageDir = new File(getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES), TAG);
-
-        // Create the storage directory if it does not exist
-        if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
-            Log.d(TAG, "failed to create directory");
-        }
-
-        // Return the file target for the photo based on filename
-        File file = new File(mediaStorageDir.getPath() + File.separator + photoFileName);
-
-        Log.i(TAG, "This is the file: " + file.toString());
-
-        return new File(mediaStorageDir.getPath() + File.separator + photoFileName);
-    }
-
     private void savePost(ParseUser currentUser, String caption, String categoryName) {
         Post post = new Post();
+
         post.setCaption(caption);
+
         Category category = new Category();
         category.setName(categoryName);
-        category.addPosts(post);
         post.setCategory(category);
-        Log.i("FINALMEDIAFILE", mediaFile.toString());
+
         post.setVideo(new ParseFile(mediaFile));
         post.setUser(currentUser);
 
@@ -171,10 +152,12 @@ public class CreateFragment extends Fragment {
                     Log.e(APP_TAG, "Error while saving", e);
                     Toast.makeText(getContext(), "Error while saving!", Toast.LENGTH_SHORT).show();
                 }
+                //category.setPosts(post); ** Why isn't this working
                 Log.i(APP_TAG, "Post save was successful!");
             }
         });
     }
+
 
 
 }
