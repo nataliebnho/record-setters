@@ -2,6 +2,9 @@ package com.example.the_commoners_guinness.ui.home;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.util.Log;
@@ -19,12 +22,17 @@ import com.example.the_commoners_guinness.Category;
 import com.example.the_commoners_guinness.ChallengeActivity;
 import com.example.the_commoners_guinness.Post;
 import com.example.the_commoners_guinness.R;
+import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseRelation;
+import com.parse.ParseUser;
 
 import org.jetbrains.annotations.NotNull;
 import org.parceler.Parcels;
+import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -71,6 +79,9 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         private TextView tvCaption;
         private VideoView vvPostVideo;
         private ImageView ivChallenge;
+        private ImageView ivVote;
+        private TextView tvNumVotes;
+        private int currentSize;
 
         public ViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
@@ -80,6 +91,9 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             tvUsername = itemView.findViewById(R.id.tvUsername);
             vvPostVideo = itemView.findViewById(R.id.vvPostVideo);
             ivChallenge = itemView.findViewById(R.id.ivChallenge);
+            ivVote = itemView.findViewById(R.id.ivVote);
+            tvNumVotes = itemView.findViewById(R.id.tvNumVotes);
+
         }
 
         public void bind(Post post) throws ParseException {
@@ -106,17 +120,90 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                 @Override
                 public void onClick(View v) {
                     Intent i = new Intent(itemView.getContext(), ChallengeActivity.class);
-//                    try {
-//                        i.putExtra("CategoryName", category.fetchIfNeeded().getString("name"));
-//                        i.putExtra("CategoryID", category.fetchIfNeeded().getObjectId());
                     i.putExtra("Category", Parcels.wrap(category));
-//                    } catch (ParseException e) {
-//                        e.printStackTrace();
-//                    }
                     context.startActivity(i);
                 }
             });
+
+            queryLikesForVoteImage(post, ivVote);
+            queryVotesForNumVotes(post);
+            changeLikeButtons(post);
         }
+
+        private void changeLikeButtons(Post post) {
+            ivVote.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        if (ivVote.isSelected()) {
+                            deleteVote(post);
+                            ivVote.setImageResource(R.drawable.vote_empty);
+                            ivVote.setSelected(false);
+                            tvNumVotes.setText("" + (currentSize - 1));
+                            currentSize -= 1;
+
+                        } else {
+                            postVote(post);
+                            ivVote.setImageResource(R.drawable.vote);
+                            ivVote.setSelected(true);
+                            tvNumVotes.setText("" + (currentSize + 1));
+                            currentSize += 1;
+
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                        Log.e(TAG, "post was not liked");
+                    }
+                }
+            });
+        }
+
+        private void queryVotesForNumVotes(Post post) {
+            ParseQuery simpleQuery = post.getRelation("like").getQuery();
+            simpleQuery.findInBackground(new FindCallback<ParseUser>() {
+                @Override
+                public void done(List<ParseUser> objects, ParseException e) {
+                    if (e == null) {
+                        tvNumVotes.setText(String.valueOf(objects.size()));
+                        currentSize = objects.size();
+                    }
+                }
+            });
+        }
+    }
+
+    private void queryLikesForVoteImage(Post post, ImageView ivVotes) {
+        ParseQuery query = post.getRelation("like").getQuery().whereContains("objectId", ParseUser.getCurrentUser().getObjectId());
+        query.findInBackground(new FindCallback<ParseUser>() {
+            @Override
+            public void done(List<ParseUser> objects, ParseException e) {
+                if (e == null) {
+                    if (objects.size() == 0) {
+                        //do not like
+                        ivVotes.setImageResource(R.drawable.vote_empty);
+                        ivVotes.setSelected(false);
+                        Log.d(TAG, "current user not liked it");
+                    } else {
+                        // display that it is liked
+                        ivVotes.setImageResource(R.drawable.vote);
+                        ivVotes.setSelected(true);
+                        Log.d(TAG, "current user did already liked it");
+                    }
+                }
+            }
+        });
+    }
+
+    private void postVote(Post post) throws ParseException {
+        ParseRelation<ParseObject> relation = post.getRelation("vote");
+        relation.add(ParseUser.getCurrentUser());
+        post.save();
+    }
+
+    private void deleteVote(Post post) throws ParseException {
+        ParseRelation<ParseObject> relation = post.getRelation("vote");
+        relation.remove(ParseUser.getCurrentUser());
+        post.save();
     }
 
     public void clear() {

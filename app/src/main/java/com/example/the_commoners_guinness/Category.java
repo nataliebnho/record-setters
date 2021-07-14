@@ -5,8 +5,6 @@ import com.parse.ParseObject;
 
 import org.parceler.Parcel;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.List;
 
 @Parcel (analyze = Category.class)
@@ -36,6 +34,5 @@ public class Category extends ParseObject {
     public void setName(String name) {
         put(KEY_NAME, name);
     }
-
 
 }

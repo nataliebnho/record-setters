@@ -17,26 +17,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <ImageView
-            android:id="@+id/ivLike"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_below="@id/ivVote"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="124dp"
-            android:layout_marginEnd="35dp"
-            card_view:srcCompat="@drawable/ufi_heart" />
-
-        <ImageView
-            android:id="@+id/ivComment"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_below="@id/ivLike"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="36dp"
-            card_view:srcCompat="@drawable/ufi_comment" />
         <VideoView
             android:id="@+id/vvPostVideo"
             android:layout_width="200dp"
@@ -52,6 +32,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="10dp"
             android:textSize="20sp"
+            android:textStyle="bold"
             tools:text="Category" />
 
         <TextView
@@ -86,13 +67,68 @@
 
         <ImageView
             android:id="@+id/ivVote"
-            android:layout_width="71dp"
-            android:layout_height="71dp"
+            android:layout_width="43dp"
+            android:layout_height="33dp"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="59dp"
-            android:layout_marginEnd="13dp"
-            card_view:srcCompat="@drawable/vote" />
+            android:layout_marginTop="53dp"
+            android:layout_marginEnd="29dp"
+            card_view:srcCompat="@drawable/vote_empty" />
+
+        <ImageView
+            android:id="@+id/ivLike"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_below="@id/ivVote"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="125dp"
+            android:layout_marginEnd="39dp"
+            card_view:srcCompat="@drawable/ufi_heart" />
+
+        <TextView
+            android:id="@+id/tvNumLikes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ivLike"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="6dp"
+            android:layout_marginEnd="48dp"
+            android:layout_marginBottom="162dp"
+            android:text="TextView"
+            tools:text="1" />
+
+        <ImageView
+            android:id="@+id/ivComment"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="325dp"
+            android:layout_marginTop="193dp"
+            card_view:srcCompat="@drawable/ufi_comment" />
+
+        <TextView
+            android:id="@+id/tvNumComments"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ivComment"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="47dp"
+            android:text="TextView"
+            tools:text="1" />
+
+        <TextView
+            android:id="@+id/tvNumVotes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ivVote"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="47dp"
+            android:text="TextView"
+            tools:text="1" />
 
     </RelativeLayout>
 
