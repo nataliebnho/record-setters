@@ -1,12 +1,14 @@
 package com.example.the_commoners_guinness.ui.home;
 
 import android.content.Context;
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.VideoView;
 
@@ -14,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.the_commoners_guinness.Category;
+import com.example.the_commoners_guinness.ChallengeActivity;
 import com.example.the_commoners_guinness.Post;
 import com.example.the_commoners_guinness.R;
 import com.parse.ParseException;
@@ -23,6 +26,8 @@ import com.parse.ParseObject;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+
+import okhttp3.Challenge;
 
 public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
 
@@ -64,6 +69,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         private TextView tvUsername;
         private TextView tvCaption;
         private VideoView vvPostVideo;
+        private ImageView ivChallenge;
 
         public ViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
@@ -72,6 +78,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             tvCategory = itemView.findViewById(R.id.tvCategory);
             tvUsername = itemView.findViewById(R.id.tvUsername);
             vvPostVideo = itemView.findViewById(R.id.vvPostVideo);
+            ivChallenge = itemView.findViewById(R.id.ivChallenge);
         }
 
         public void bind(Post post) throws ParseException {
@@ -91,6 +98,14 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                 @Override
                 public void onCompletion(MediaPlayer mediaPlayer) {
                     vvPostVideo.start();
+                }
+            });
+
+            ivChallenge.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent i = new Intent(itemView.getContext(), ChallengeActivity.class);
+                    context.startActivity(i);
                 }
             });
         }
