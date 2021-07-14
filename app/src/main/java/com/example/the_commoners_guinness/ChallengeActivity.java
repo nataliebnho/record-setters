@@ -20,8 +20,6 @@ public class ChallengeActivity extends AppCompatActivity {
 
     private static final String TAG = "ChallengeActivity";
     private ActivityChallengeBinding binding;
-    private String categoryName;
-    private String categoryID;
     private Category category;
 
     @Override
@@ -32,14 +30,8 @@ public class ChallengeActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         category = Parcels.unwrap(getIntent().getParcelableExtra("Category"));
-//        categoryName = category.getName();
-//        categoryID = category.getObjectId();
-//        Log.i(TAG, "Category Name: " + categoryName);
-//        Log.i(TAG, "Category Name: " + categoryID);
 
         Bundle bundle = new Bundle();
-//        bundle.putString("categoryName", categoryName);
-//        bundle.putString("categoryID", categoryID);
         bundle.putParcelable("category", Parcels.wrap(category));
 
         final FragmentManager fragmentManager = getSupportFragmentManager();
