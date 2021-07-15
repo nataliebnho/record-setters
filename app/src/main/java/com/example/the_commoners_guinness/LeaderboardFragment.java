@@ -38,6 +38,10 @@ public class LeaderboardFragment extends Fragment {
     TextView tvUsernameSecond;
     TextView tvUsernameThird;
     int numLeaderboard;
+    TextView tvNumVotesFirst;
+    TextView tvNumVotesSecond;
+    TextView tvNumVotesThird;
+
 
     public LeaderboardFragment() {
         // Required empty public constructor
@@ -65,7 +69,9 @@ public class LeaderboardFragment extends Fragment {
         tvUsernameFirst = view.findViewById(R.id.tvUsernameFirst);
         tvUsernameSecond = view.findViewById(R.id.tvUsernameSecond);
         tvUsernameThird = view.findViewById(R.id.tvUsernameThird);
-
+        tvNumVotesFirst = view.findViewById(R.id.tvNumVotesFirst);
+        tvNumVotesSecond = view.findViewById(R.id.tvNumVotesSecond);
+        tvNumVotesThird = view.findViewById(R.id.tvNumVotesThird);
 
         rvCategoryPosts.setAdapter(adapter);
         rvCategoryPosts.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -73,10 +79,10 @@ public class LeaderboardFragment extends Fragment {
         category = Parcels.unwrap(getArguments().getParcelable("category"));
         tvLeaderboardCategory.setText(category.getName());
 
-        queryCategoryPosts(tvUsernameFirst, tvUsernameSecond, tvUsernameThird);
+        queryCategoryPosts();
     }
 
-    private void queryCategoryPosts(TextView one, TextView two, TextView three) {
+    private void queryCategoryPosts() {
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         query.include(Post.KEY_USER);
         query.setLimit(20);
@@ -95,22 +101,26 @@ public class LeaderboardFragment extends Fragment {
                 }
                 categoryPosts.addAll(posts);
                 adapter.notifyDataSetChanged();
-                setLeaderboardUsernames(one, two, three);
+                setLeaderboardUsernames();
             }
         });
     }
 
-    public void setLeaderboardUsernames(TextView one, TextView two, TextView three) {
+    public void setLeaderboardUsernames() {
         Log.i(TAG, String.valueOf(numLeaderboard));
         //Will clean this logic later
         if (numLeaderboard >= 1) {
             tvUsernameFirst.setText(leaderboard[0].getUser().getUsername());
+            tvNumVotesFirst.setText(String.valueOf(leaderboard[0].get("voteCount")));
         }
         if (numLeaderboard >= 2) {
-            tvUsernameSecond.setText(leaderboard[0].getUser().getUsername());
+            tvUsernameSecond.setText(leaderboard[1].getUser().getUsername());
+            tvNumVotesSecond.setText(String.valueOf(leaderboard[1].get("voteCount")));
         }
         if (numLeaderboard == 3) {
-            tvUsernameThird.setText(leaderboard[0].getUser().getUsername());
+            tvUsernameThird.setText(leaderboard[2].getUser().getUsername());
+            tvNumVotesThird.setText(String.valueOf(leaderboard[2].get("voteCount")));
+
         }
     }
 
