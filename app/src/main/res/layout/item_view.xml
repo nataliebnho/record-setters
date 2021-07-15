@@ -43,7 +43,7 @@
             android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
             android:text="TextView"
-            tools:textStyle="bold" />
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvCaption"
@@ -82,8 +82,8 @@
             android:layout_below="@id/ivVote"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="125dp"
-            android:layout_marginEnd="39dp"
+            android:layout_marginTop="124dp"
+            android:layout_marginEnd="38dp"
             card_view:srcCompat="@drawable/ufi_heart" />
 
         <TextView
@@ -95,8 +95,7 @@
             android:layout_marginTop="6dp"
             android:layout_marginEnd="48dp"
             android:layout_marginBottom="162dp"
-            android:text="TextView"
-            tools:text="1" />
+            android:text="0" />
 
         <ImageView
             android:id="@+id/ivComment"
@@ -104,8 +103,9 @@
             android:layout_height="30dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:layout_marginStart="325dp"
-            android:layout_marginTop="193dp"
+            android:layout_alignParentEnd="false"
+            android:layout_marginStart="303dp"
+            android:layout_marginTop="192dp"
             card_view:srcCompat="@drawable/ufi_comment" />
 
         <TextView
@@ -116,8 +116,7 @@
             android:layout_alignParentEnd="true"
             android:layout_marginTop="5dp"
             android:layout_marginEnd="47dp"
-            android:text="TextView"
-            tools:text="1" />
+            android:text="0" />
 
         <TextView
             android:id="@+id/tvNumVotes"

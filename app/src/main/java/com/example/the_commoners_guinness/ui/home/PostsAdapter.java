@@ -2,9 +2,6 @@ package com.example.the_commoners_guinness.ui.home;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.util.Log;
@@ -32,11 +29,9 @@ import com.parse.ParseUser;
 
 import org.jetbrains.annotations.NotNull;
 import org.parceler.Parcels;
-import org.w3c.dom.Text;
 
 import java.util.List;
 
-import okhttp3.Challenge;
 
 public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
 
@@ -126,6 +121,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             });
 
             queryLikesForVoteImage(post, ivVote);
+            //tvNumVotes.setText(String.valueOf(post.getVoteCount()));
             queryVotesForNumVotes(post);
             changeLikeButtons(post);
         }
@@ -159,7 +155,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         }
 
         private void queryVotesForNumVotes(Post post) {
-            ParseQuery simpleQuery = post.getRelation("like").getQuery();
+            ParseQuery simpleQuery = post.getRelation("vote").getQuery();
             simpleQuery.findInBackground(new FindCallback<ParseUser>() {
                 @Override
                 public void done(List<ParseUser> objects, ParseException e) {
@@ -173,7 +169,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
     }
 
     private void queryLikesForVoteImage(Post post, ImageView ivVotes) {
-        ParseQuery query = post.getRelation("like").getQuery().whereContains("objectId", ParseUser.getCurrentUser().getObjectId());
+        ParseQuery query = post.getRelation("vote").getQuery().whereContains("objectId", ParseUser.getCurrentUser().getObjectId());
         query.findInBackground(new FindCallback<ParseUser>() {
             @Override
             public void done(List<ParseUser> objects, ParseException e) {
@@ -197,12 +193,14 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
     private void postVote(Post post) throws ParseException {
         ParseRelation<ParseObject> relation = post.getRelation("vote");
         relation.add(ParseUser.getCurrentUser());
+        post.setVoteCount(post.getVoteCount() + 1);
         post.save();
     }
 
     private void deleteVote(Post post) throws ParseException {
         ParseRelation<ParseObject> relation = post.getRelation("vote");
         relation.remove(ParseUser.getCurrentUser());
+        post.setVoteCount(post.getVoteCount() - 1);
         post.save();
     }
 

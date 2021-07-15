@@ -12,6 +12,7 @@ public class Post extends ParseObject {
     public static final String KEY_VIDEO = "video";
     public static final String KEY_USER = "user";
     public static final String KEY_CATEGORY = "category";
+    public static final String KEY_VOTECOUNT = "voteCount";
 
     public Post() {
     }
@@ -41,5 +42,10 @@ public class Post extends ParseObject {
     public Category getCategory() { return (Category) getParseObject(KEY_CATEGORY); }
 
     public void setCategory(Category category) { put(KEY_CATEGORY, category); }
+
+    public int getVoteCount() { return getInt(KEY_VOTECOUNT); }
+
+    public void setVoteCount(int voteCount) { put(KEY_VOTECOUNT, voteCount); }
+
 
 }
