@@ -62,9 +62,9 @@ public class LeaderboardFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        rvCategoryPosts = view.findViewById(R.id.rvCategoryPosts);
         categoryPosts = new ArrayList<>();
         adapter = new PostsAdapter(getContext(), categoryPosts);
+        rvCategoryPosts = view.findViewById(R.id.rvCategoryPosts);
         tvLeaderboardCategory = view.findViewById(R.id.tvLeaderboardCategory);
         tvUsernameFirst = view.findViewById(R.id.tvUsernameFirst);
         tvUsernameSecond = view.findViewById(R.id.tvUsernameSecond);
@@ -94,25 +94,34 @@ public class LeaderboardFragment extends Fragment {
                 if (e != null) {
                     Log.e(TAG, "Issue with retrieving posts", e);
                 }
-                numLeaderboard = Math.min(3, posts.size());
-                for(int i = 0; i < numLeaderboard; i++) {
-                    leaderboard[i] = posts.get(i);
-                    Log.i("Leaderboard", i + " : " + posts.get(i).getObjectId());
-                }
+                setLeaderboard(posts);
                 categoryPosts.addAll(posts);
                 adapter.notifyDataSetChanged();
-                setLeaderboardUsernames();
+                try {
+                    setLeaderboardUsernamesandVotes();
+                } catch (ParseException parseException) {
+                    parseException.printStackTrace();
+                }
             }
         });
     }
 
-    public void setLeaderboardUsernames() {
+    public void setLeaderboard(List<Post> posts) {
+        numLeaderboard = Math.min(3, posts.size());
+        for(int i = 0; i < numLeaderboard; i++) {
+            leaderboard[i] = posts.get(i);
+            Log.i("Leaderboard", i + " : " + posts.get(i).getObjectId());
+        }
+    }
+
+    public void setLeaderboardUsernamesandVotes() throws ParseException {
         Log.i(TAG, String.valueOf(numLeaderboard));
         //Will clean this logic later
         if (numLeaderboard >= 1) {
             tvUsernameFirst.setText(leaderboard[0].getUser().getUsername());
             tvNumVotesFirst.setText(String.valueOf(leaderboard[0].get("voteCount")));
         }
+
         if (numLeaderboard >= 2) {
             tvUsernameSecond.setText(leaderboard[1].getUser().getUsername());
             tvNumVotesSecond.setText(String.valueOf(leaderboard[1].get("voteCount")));

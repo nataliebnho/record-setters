@@ -97,10 +97,8 @@ public class CreateFragment extends Fragment {
             //mediaFile = getPhotoFileUri(photoFileName);
 
             mediaFile = new File(getContext().getExternalFilesDir(Environment.DIRECTORY_MOVIES), "share_image_" + System.currentTimeMillis() + ".mp4");
-            Log.i("Test MediaFile:", mediaFile.toString());
             // wrap File object into a content provider. NOTE: authority here should match authority in manifest declaration
             Uri fileProvider = FileProvider.getUriForFile(getActivity(), "com.codepath.fileprovider.the-commoners-guinness", mediaFile);
-            Log.i("Fileprovider: ", fileProvider.toString());
 
             intent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider);
             startActivityForResult(intent, VIDEO_CAPTURE);
@@ -113,7 +111,6 @@ public class CreateFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == VIDEO_CAPTURE) {
             if (resultCode == getActivity().RESULT_OK) {
-                Toast.makeText(getContext(), "Video has been saved to:\n" + data.getData(), Toast.LENGTH_LONG).show();
                 VideoView videoView = getView().findViewById(R.id.vvVideoToPostChallenge);
                 videoView.setVideoURI(data.getData());
                 videoView.setMediaController(new MediaController(getContext()));
@@ -146,7 +143,6 @@ public class CreateFragment extends Fragment {
                     Log.e(APP_TAG, "Error while saving", e);
                     Toast.makeText(getContext(), "Error while saving!", Toast.LENGTH_SHORT).show();
                 }
-                //category.setPosts(post); ** Why isn't this working
                 Log.i(APP_TAG, "Post save was successful!");
             }
         });

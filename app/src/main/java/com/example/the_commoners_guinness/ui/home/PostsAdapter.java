@@ -28,8 +28,10 @@ import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
 import org.parceler.Parcels;
 
+import java.util.Collection;
 import java.util.List;
 
 
@@ -77,6 +79,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         private ImageView ivVote;
         private TextView tvNumVotes;
         private int currentSize;
+        private Category category;
 
         public ViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
@@ -94,10 +97,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         public void bind(Post post) throws ParseException {
             tvUsername.setText(post.getUser().getUsername());
             tvCaption.setText(post.getCaption());
-            Category category = post.getCategory();
-            if (category.getPosts() == null || !category.getPosts().contains(post)) {
-                category.setPosts(post);
-            }
+            category = post.getCategory();
             tvCategory.setText(category.fetchIfNeeded().getString("name"));
 
             ParseFile file = post.getParseFile("video");
@@ -121,7 +121,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             });
 
             queryLikesForVoteImage(post, ivVote);
-            //tvNumVotes.setText(String.valueOf(post.getVoteCount()));
             queryVotesForNumVotes(post);
             changeLikeButtons(post);
         }
@@ -137,14 +136,14 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                             ivVote.setSelected(false);
                             tvNumVotes.setText("" + (currentSize - 1));
                             currentSize -= 1;
-
+                            queryForUpdateWinner(category);
                         } else {
                             postVote(post);
                             ivVote.setImageResource(R.drawable.vote);
                             ivVote.setSelected(true);
                             tvNumVotes.setText("" + (currentSize + 1));
                             currentSize += 1;
-
+                            queryForUpdateWinner(category);
                         }
                     } catch (ParseException e) {
                         e.printStackTrace();
@@ -166,6 +165,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                 }
             });
         }
+
     }
 
     private void queryLikesForVoteImage(Post post, ImageView ivVotes) {
@@ -190,6 +190,29 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         });
     }
 
+    private void queryForUpdateWinner(Category category) {
+        ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
+        query.setLimit(1);
+        query.addDescendingOrder("voteCount");
+        query.whereEqualTo(Post.KEY_CATEGORY, category);
+        query.findInBackground(new FindCallback<Post>() {
+            @Override
+            public void done(List<Post> posts, ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Issue with retrieving posts", e);
+                }
+                try {
+                    Log.i("Winning post: ", posts.get(0).getObjectId());
+                    category.setWinner(posts.get(0));
+                    category.setWinnerUser(posts.get(0).getUser());
+                    category.save();
+                } catch (ParseException parseException) {
+                    parseException.printStackTrace();
+                }
+            }
+        });
+    }
+
     private void postVote(Post post) throws ParseException {
         ParseRelation<ParseObject> relation = post.getRelation("vote");
         relation.add(ParseUser.getCurrentUser());
@@ -203,6 +226,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         post.setVoteCount(post.getVoteCount() - 1);
         post.save();
     }
+
 
     public void clear() {
         posts.clear();
