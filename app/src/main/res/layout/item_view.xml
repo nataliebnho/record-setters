@@ -1,134 +1,165 @@
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/cvItem"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:clickable="true"
-    android:layout_marginTop="10dp"
-    android:layout_marginLeft="10dp"
-    android:layout_marginRight="10dp"
-    android:foreground="?android:attr/selectableItemBackground"
-    card_view:cardCornerRadius="8dp"
-    card_view:cardElevation="8dp">
+    tools:context=".LeaderboardFragment">
 
-    <!-- Main Content View -->
-    <RelativeLayout
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cvItem"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvCountdown"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
+        android:clickable="true"
+        android:foreground="?android:attr/selectableItemBackground"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="8dp">
 
-        <VideoView
-            android:id="@+id/vvPostVideo"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:layout_below="@id/tvCategory"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="15dp"></VideoView>
+        <!-- Main Content View -->
 
-        <TextView
-            android:id="@+id/tvCategory"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="10dp"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            tools:text="Category" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/tvUsername"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/vvPostVideo"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
-            android:text="TextView"
-            android:textStyle="bold" />
+            <VideoView
+                android:id="@+id/vvPostVideo"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_below="@id/tvCategory"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="15dp"></VideoView>
 
-        <TextView
-            android:id="@+id/tvCaption"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/vvPostVideo"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_toRightOf="@id/tvUsername"
-            android:text="TextView" />
+            <TextView
+                android:id="@+id/tvCategory"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="10dp"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                tools:text="Category" />
 
-        <ImageView
-            android:id="@+id/ivChallenge"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_below="@id/tvCaption"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="12dp"
-            android:layout_marginEnd="21dp"
-            card_view:srcCompat="@drawable/crown" />
+            <TextView
+                android:id="@+id/tvUsername"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/vvPostVideo"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:text="TextView"
+                android:textStyle="bold" />
 
-        <ImageView
-            android:id="@+id/ivVote"
-            android:layout_width="43dp"
-            android:layout_height="33dp"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="53dp"
-            android:layout_marginEnd="29dp"
-            card_view:srcCompat="@drawable/vote_empty" />
+            <TextView
+                android:id="@+id/tvCaption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/vvPostVideo"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_toRightOf="@id/tvUsername"
+                android:text="TextView" />
 
-        <ImageView
-            android:id="@+id/ivLike"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_below="@id/ivVote"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="124dp"
-            android:layout_marginEnd="38dp"
-            card_view:srcCompat="@drawable/ufi_heart" />
+            <ImageView
+                android:id="@+id/ivChallenge"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_below="@id/tvCaption"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="21dp"
+                app:srcCompat="@drawable/crown" />
 
-        <TextView
-            android:id="@+id/tvNumLikes"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/ivLike"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="6dp"
-            android:layout_marginEnd="48dp"
-            android:layout_marginBottom="162dp"
-            android:text="0" />
+            <ImageView
+                android:id="@+id/ivVote"
+                android:layout_width="43dp"
+                android:layout_height="33dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="53dp"
+                android:layout_marginEnd="29dp"
+                app:srcCompat="@drawable/vote_empty" />
 
-        <ImageView
-            android:id="@+id/ivComment"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="false"
-            android:layout_marginStart="303dp"
-            android:layout_marginTop="192dp"
-            card_view:srcCompat="@drawable/ufi_comment" />
+            <ImageView
+                android:id="@+id/ivLike"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_below="@id/ivVote"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="124dp"
+                android:layout_marginEnd="38dp"
+                app:srcCompat="@drawable/ufi_heart" />
 
-        <TextView
-            android:id="@+id/tvNumComments"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/ivComment"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="5dp"
-            android:layout_marginEnd="47dp"
-            android:text="0" />
+            <TextView
+                android:id="@+id/tvNumLikes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/ivLike"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="6dp"
+                android:layout_marginEnd="48dp"
+                android:layout_marginBottom="162dp"
+                android:text="0" />
 
-        <TextView
-            android:id="@+id/tvNumVotes"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/ivVote"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="5dp"
-            android:layout_marginEnd="47dp"
-            android:text="TextView"
-            tools:text="1" />
+            <ImageView
+                android:id="@+id/ivComment"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="false"
+                android:layout_marginStart="303dp"
+                android:layout_marginTop="192dp"
+                app:srcCompat="@drawable/ufi_comment" />
 
-    </RelativeLayout>
+            <TextView
+                android:id="@+id/tvNumComments"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/ivComment"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="47dp"
+                android:text="0" />
 
-</androidx.cardview.widget.CardView>
+            <TextView
+                android:id="@+id/tvNumVotes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/ivVote"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="47dp"
+                android:text="TextView"
+                tools:text="1" />
+
+        </RelativeLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/tvVotingTimeLeft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="77dp"
+        android:layout_marginTop="43dp"
+        android:text="Voting Time Left:" />
+
+    <TextView
+        android:id="@+id/tvCountdown"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="29dp"
+        android:layout_marginEnd="71dp"
+        android:textSize="34sp"
+        tools:text="00:00:00" />
+
+</RelativeLayout>

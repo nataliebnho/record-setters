@@ -24,10 +24,12 @@ import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
 import com.example.the_commoners_guinness.Category;
+import com.example.the_commoners_guinness.MapsActivity;
 import com.example.the_commoners_guinness.Post;
 import com.example.the_commoners_guinness.R;
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
@@ -45,6 +47,9 @@ public class CreateFragment extends Fragment {
     File mediaFile;
     EditText etCaption;
     EditText etCategory;
+    Button btnAddLocation;
+    ParseGeoPoint location;
+    private static final int MAPS_REQUEST_CODE = 40;
 
     public CreateFragment() {
         // Required empty public constructor
@@ -69,6 +74,7 @@ public class CreateFragment extends Fragment {
         etCaption = view.findViewById(R.id.etCaptionChallenge);
         etCategory = view.findViewById(R.id.etCategory);
         btnShare = view.findViewById(R.id.btnPostChallenge);
+        btnAddLocation = view.findViewById(R.id.btnAddLocation);
 
         btnTakeVideo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,6 +93,14 @@ public class CreateFragment extends Fragment {
                 etCaption.setText("");
                 etCategory.setText("");
                 vvVideoToPost.setBackgroundResource(0);
+            }
+        });
+
+        btnAddLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getContext(), MapsActivity.class);
+                startActivityForResult(i, MAPS_REQUEST_CODE);
             }
         });
     }
@@ -122,6 +136,12 @@ public class CreateFragment extends Fragment {
                 Toast.makeText(getContext(), "Failed to record video",  Toast.LENGTH_LONG).show();
             }
         }
+        if (requestCode == MAPS_REQUEST_CODE) {
+            if (resultCode == getActivity().RESULT_OK) {
+                location = data.getParcelableExtra("Location");
+                Log.i("Location", location.toString());
+            }
+        }
     }
 
     private void savePost(ParseUser currentUser, String caption, String categoryName) {
@@ -132,6 +152,8 @@ public class CreateFragment extends Fragment {
         Category category = new Category();
         category.setName(categoryName);
         post.setCategory(category);
+
+        post.setLocation(location);
 
         post.setVideo(new ParseFile(mediaFile));
         post.setUser(currentUser);
@@ -147,7 +169,5 @@ public class CreateFragment extends Fragment {
             }
         });
     }
-
-
 
 }

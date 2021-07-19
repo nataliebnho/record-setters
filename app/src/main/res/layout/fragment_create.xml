@@ -13,7 +13,7 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_marginStart="121dp"
-        android:layout_marginTop="147dp"
+        android:layout_marginTop="50dp"
         android:backgroundTint="#2196F3"
         android:src="@android:drawable/ic_menu_camera" />
 
@@ -24,7 +24,7 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_marginStart="186dp"
-        android:layout_marginTop="153dp"
+        android:layout_marginTop="55dp"
         android:text="Take Video"
         android:textSize="20sp" />
 
@@ -38,7 +38,7 @@
 
     <EditText
         android:id="@+id/etCategory"
-        android:layout_width="310dp"
+        android:layout_width="279dp"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
@@ -49,7 +49,7 @@
 
     <EditText
         android:id="@+id/etCaptionChallenge"
-        android:layout_width="310dp"
+        android:layout_width="361dp"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
@@ -64,7 +64,17 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="96dp"
+        android:layout_marginBottom="50dp"
         android:text="POST" />
+
+    <Button
+        android:id="@+id/btnAddLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="113dp"
+        android:backgroundTint="#00BCD4"
+        android:text="Add location" />
 
 </RelativeLayout>

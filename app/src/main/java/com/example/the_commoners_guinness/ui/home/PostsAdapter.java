@@ -4,12 +4,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
@@ -33,6 +35,7 @@ import org.parceler.Parcels;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 
 public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
@@ -40,6 +43,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
     private static final String TAG = "POSTSADAPTER";
     private Context context;
     private List<Post> posts;
+
 
     public PostsAdapter(Context context, List<Post> posts) {
         this.context = context;
@@ -57,6 +61,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
     @Override
     public void onBindViewHolder(@NonNull @NotNull PostsAdapter.ViewHolder holder, int position) {
         Post post = posts.get(position);
+        holder.setIsRecyclable(false);
         try {
             holder.bind(post);
         } catch (ParseException e) {
@@ -80,6 +85,14 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         private TextView tvNumVotes;
         private int currentSize;
         private Category category;
+        private TextView tvVotingTimeStatus;
+
+        private TextView tvCountdown;
+        private CountDownTimer countDownTimer;
+        private boolean timerRunning;
+        private long timeLeftInMillis;
+        private long timeSincePostMillis;
+        private long votingPeriodMillis = 86400000; // There are 86400000 millis in one day
 
         public ViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
@@ -91,6 +104,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             ivChallenge = itemView.findViewById(R.id.ivChallenge);
             ivVote = itemView.findViewById(R.id.ivVote);
             tvNumVotes = itemView.findViewById(R.id.tvNumVotes);
+            tvCountdown = itemView.findViewById(R.id.tvCountdown);
+            tvVotingTimeStatus = itemView.findViewById(R.id.tvVotingTimeLeft);
 
         }
 
@@ -100,7 +115,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             category = post.getCategory();
             tvCategory.setText(category.fetchIfNeeded().getString("name"));
 
-            ParseFile file = post.getParseFile("video");
+            ParseFile file = post.getVideo();
             vvPostVideo.setVideoURI(Uri.parse(file.getUrl()));
             vvPostVideo.requestFocus();
             vvPostVideo.start();
@@ -122,35 +137,82 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
 
             queryLikesForVoteImage(post, ivVote);
             queryVotesForNumVotes(post);
-            changeLikeButtons(post);
+            setCountDownTimer(post);
+            setCategoryVoteStatus(category);
+        }
+
+        private void setCountDownTimer(Post post) {
+            timeSincePostMillis = System.currentTimeMillis() - post.getCreatedAt().getTime();
+
+            if (timeSincePostMillis > votingPeriodMillis) {
+                tvCountdown.setText("");
+                tvVotingTimeStatus.setText("The voting period for this post has closed");
+                ivVote.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(context.getApplicationContext(), "The voting period for this post has closed!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } else {
+                changeLikeButtons(post);
+                timeLeftInMillis = votingPeriodMillis - timeSincePostMillis;
+                countDownTimer = new CountDownTimer(timeLeftInMillis, 1000) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        timeLeftInMillis = millisUntilFinished;
+                        updateCountDownText();
+                    }
+                    @Override
+                    public void onFinish() {
+                        tvCountdown.setText("");
+                    }
+                }.start();
+            }
+        }
+
+        private void setCategoryVoteStatus(Category category) throws ParseException {
+            if (timeSincePostMillis > votingPeriodMillis) {
+                category.setVotingPeriod(true);
+                category.save();
+            }
+        }
+
+        private void updateCountDownText() {
+            int hours   = (int) ((timeLeftInMillis / (1000*60*60)) % 24);
+            int minutes = (int) ((timeLeftInMillis / (1000*60)) % 60);
+            int seconds = (int) (timeLeftInMillis / 1000) % 60 ;
+
+            String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds);
+            tvCountdown.setText(timeLeftFormatted);
         }
 
         private void changeLikeButtons(Post post) {
             ivVote.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    try {
-                        if (ivVote.isSelected()) {
-                            deleteVote(post);
-                            ivVote.setImageResource(R.drawable.vote_empty);
-                            ivVote.setSelected(false);
-                            tvNumVotes.setText("" + (currentSize - 1));
-                            currentSize -= 1;
-                            queryForUpdateWinner(category);
-                        } else {
-                            postVote(post);
-                            ivVote.setImageResource(R.drawable.vote);
-                            ivVote.setSelected(true);
-                            tvNumVotes.setText("" + (currentSize + 1));
-                            currentSize += 1;
-                            queryForUpdateWinner(category);
+                    @Override
+                    public void onClick(View v) {
+                        try {
+                            if (ivVote.isSelected()) {
+                                deleteVote(post);
+                                ivVote.setImageResource(R.drawable.vote_empty);
+                                ivVote.setSelected(false);
+                                tvNumVotes.setText("" + (currentSize - 1));
+                                currentSize -= 1;
+                                queryForUpdateWinner(category);
+                            } else {
+                                postVote(post);
+                                ivVote.setImageResource(R.drawable.vote);
+                                ivVote.setSelected(true);
+                                tvNumVotes.setText("" + (currentSize + 1));
+                                currentSize += 1;
+                                queryForUpdateWinner(category);
+                            }
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                            Log.e(TAG, "post was not liked");
                         }
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                        Log.e(TAG, "post was not liked");
                     }
-                }
-            });
+                });
+
         }
 
         private void queryVotesForNumVotes(Post post) {
@@ -167,6 +229,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         }
 
     }
+
+
 
     private void queryLikesForVoteImage(Post post, ImageView ivVotes) {
         ParseQuery query = post.getRelation("vote").getQuery().whereContains("objectId", ParseUser.getCurrentUser().getObjectId());

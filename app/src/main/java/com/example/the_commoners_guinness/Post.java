@@ -1,7 +1,9 @@
 package com.example.the_commoners_guinness;
 
+import com.parse.Parse;
 import com.parse.ParseClassName;
 import com.parse.ParseFile;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
@@ -13,6 +15,8 @@ public class Post extends ParseObject {
     public static final String KEY_USER = "user";
     public static final String KEY_CATEGORY = "category";
     public static final String KEY_VOTECOUNT = "voteCount";
+    public static final String KEY_LOCATION = "location";
+
 
     public Post() {
     }
@@ -47,5 +51,8 @@ public class Post extends ParseObject {
 
     public void setVoteCount(int voteCount) { put(KEY_VOTECOUNT, voteCount); }
 
+    public ParseGeoPoint getLocation() { return getParseGeoPoint(KEY_LOCATION); }
+
+    public void setLocation(ParseGeoPoint location) { put(KEY_LOCATION, location); }
 
 }
