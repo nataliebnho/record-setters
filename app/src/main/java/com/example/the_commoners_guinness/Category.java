@@ -16,6 +16,7 @@ public class Category extends ParseObject {
     public static final String KEY_WINNER = "winner";
     public static final String KEY_WINNERUSER = "winnerUser";
     public static final String KEY_VOTINGPERIOD = "votingPeriod";
+    public static final String KEY_VOTINGPERIODTIME = "votingPeriodTime";
 
     public Category() {
     }
@@ -39,5 +40,9 @@ public class Category extends ParseObject {
     public Boolean getVotingPeriod() { return getBoolean(KEY_VOTINGPERIOD); }
 
     public void setVotingPeriod(Boolean bool) { put(KEY_VOTINGPERIOD, bool); }
+
+    public long getVotingPeriodTime() { return getLong(KEY_VOTINGPERIODTIME); }
+
+    public void setVotingPeriodTime(Long number) { put(KEY_VOTINGPERIODTIME, number); }
 
 }

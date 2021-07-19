@@ -93,6 +93,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         private long timeLeftInMillis;
         private long timeSincePostMillis;
         private long votingPeriodMillis = 86400000; // There are 86400000 millis in one day
+        private long categoryTimeLeftInMillis;
 
         public ViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
@@ -106,6 +107,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             tvNumVotes = itemView.findViewById(R.id.tvNumVotes);
             tvCountdown = itemView.findViewById(R.id.tvCountdown);
             tvVotingTimeStatus = itemView.findViewById(R.id.tvVotingTimeLeft);
+
 
         }
 
@@ -138,28 +140,28 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             queryLikesForVoteImage(post, ivVote);
             queryVotesForNumVotes(post);
             setCountDownTimer(post);
-            setCategoryVoteStatus(category);
         }
 
-        private void setCountDownTimer(Post post) {
+        private void setCountDownTimer(Post post) throws ParseException {
             timeSincePostMillis = System.currentTimeMillis() - post.getCreatedAt().getTime();
+            setCategoryVoteStatus(category);
 
-            if (timeSincePostMillis > votingPeriodMillis) {
+//            if (timeSincePostMillis > votingPeriodMillis) {
+            if (!category.getVotingPeriod()) {
                 tvCountdown.setText("");
-                tvVotingTimeStatus.setText("The voting period for this post has closed");
+                tvVotingTimeStatus.setText("The voting period for this category has closed");
                 ivVote.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Toast.makeText(context.getApplicationContext(), "The voting period for this post has closed!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context.getApplicationContext(), "The voting period for this category has closed!", Toast.LENGTH_SHORT).show();
                     }
                 });
             } else {
                 changeLikeButtons(post);
-                timeLeftInMillis = votingPeriodMillis - timeSincePostMillis;
-                countDownTimer = new CountDownTimer(timeLeftInMillis, 1000) {
+                countDownTimer = new CountDownTimer(category.getVotingPeriodTime(), 1000) {
                     @Override
                     public void onTick(long millisUntilFinished) {
-                        timeLeftInMillis = millisUntilFinished;
+                        //timeLeftInMillis = millisUntilFinished;
                         updateCountDownText();
                     }
                     @Override
@@ -171,16 +173,17 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         }
 
         private void setCategoryVoteStatus(Category category) throws ParseException {
-            if (timeSincePostMillis > votingPeriodMillis) {
+            if (timeSincePostMillis < votingPeriodMillis) {
                 category.setVotingPeriod(true);
+                category.setVotingPeriodTime(votingPeriodMillis - timeSincePostMillis);
                 category.save();
             }
         }
 
         private void updateCountDownText() {
-            int hours   = (int) ((timeLeftInMillis / (1000*60*60)) % 24);
-            int minutes = (int) ((timeLeftInMillis / (1000*60)) % 60);
-            int seconds = (int) (timeLeftInMillis / 1000) % 60 ;
+            int hours   = (int) ((category.getVotingPeriodTime() / (1000*60*60)) % 24);
+            int minutes = (int) ((category.getVotingPeriodTime() / (1000*60)) % 60);
+            int seconds = (int) (category.getVotingPeriodTime() / 1000) % 60 ;
 
             String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds);
             tvCountdown.setText(timeLeftFormatted);
