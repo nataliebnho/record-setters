@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.the_commoners_guinness.ui.dashboard.CreateFragment;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -22,17 +23,22 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.the_commoners_guinness.databinding.ActivityMapsBinding;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+import org.jetbrains.annotations.NotNull;
+
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener,
+        GoogleMap.OnMarkerDragListener {
 
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
     private Post post;
     private Button btnSaveLocation;
+    private LatLng finalPosition;
 
     private static final int REQUEST_LOCATION = 1;
     LocationManager locationManager;
@@ -51,12 +57,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-        ParseGeoPoint currentLocation = getCurrentLocation();
+
+        //ParseGeoPoint currentLocation = getCurrentLocation();
+        finalPosition = new LatLng(getCurrentLocation().getLatitude(), getCurrentLocation().getLongitude());
+
         btnSaveLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent();
-                i.putExtra("Location", currentLocation);
+                ParseGeoPoint finalParseGeoPoint = new ParseGeoPoint(finalPosition.latitude, finalPosition.longitude);
+                i.putExtra("Location", finalParseGeoPoint);
                 setResult(RESULT_OK, i);
             }
         });
@@ -76,10 +86,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         LatLng currentPost = new LatLng(getCurrentLocation().getLatitude(), getCurrentLocation().getLongitude());
-        googleMap.addMarker(new MarkerOptions().position(currentPost).title("test").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+        googleMap.addMarker(new MarkerOptions().position(currentPost).title("Post location").
+                icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))).setDraggable(true);
         // zoom the map to the currentUserLocation
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentPost, 10));
-
+        googleMap.setOnInfoWindowClickListener(this);
+        googleMap.setOnMarkerDragListener(this);
     }
 
     private ParseGeoPoint getCurrentLocation() {
@@ -97,6 +109,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         Log.e("MapsActivity", "No location returned");
         return null;
+    }
+
+    @Override
+    public void onInfoWindowClick(@NonNull @NotNull Marker marker) {
+        Toast.makeText(this, marker.getTitle(), Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onMarkerDragStart(@NonNull @NotNull Marker marker) {
+        LatLng position0 = marker.getPosition();
+
+        Log.d(getClass().getSimpleName(), String.format("Drag from %f:%f",
+                position0.latitude,
+                position0.longitude));
+    }
+
+    @Override
+    public void onMarkerDrag(@NonNull @NotNull Marker marker) {
+        LatLng position0 = marker.getPosition();
+
+        Log.d(getClass().getSimpleName(),
+                String.format("Dragging to %f:%f", position0.latitude,
+                        position0.longitude));
+    }
+
+    @Override
+    public void onMarkerDragEnd(@NonNull @NotNull Marker marker) {
+        finalPosition = marker.getPosition();
+
+        Log.d(getClass().getSimpleName(), String.format("Dragged to %f:%f",
+                finalPosition.latitude,
+                finalPosition.longitude));
     }
 //
 //    private void saveCurrentPostLocation() {
