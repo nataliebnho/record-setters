@@ -161,7 +161,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                 countDownTimer = new CountDownTimer(category.getVotingPeriodTime(), 1000) {
                     @Override
                     public void onTick(long millisUntilFinished) {
-                        //timeLeftInMillis = millisUntilFinished;
+                        category.setVotingPeriodTime(millisUntilFinished);
                         updateCountDownText();
                     }
                     @Override

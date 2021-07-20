@@ -70,6 +70,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 ParseGeoPoint finalParseGeoPoint = new ParseGeoPoint(finalPosition.latitude, finalPosition.longitude);
                 i.putExtra("Location", finalParseGeoPoint);
                 setResult(RESULT_OK, i);
+                finish();
             }
         });
     }
