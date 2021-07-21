@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,8 +12,8 @@
         android:layout_height="41dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="121dp"
-        android:layout_marginTop="147dp"
+        android:layout_marginStart="56dp"
+        android:layout_marginTop="142dp"
         android:backgroundTint="#2196F3"
         android:src="@android:drawable/ic_menu_camera" />
 
@@ -22,8 +23,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="186dp"
-        android:layout_marginTop="153dp"
+        android:layout_marginStart="34dp"
+        android:layout_marginTop="114dp"
         android:text="Take Video"
         android:textSize="20sp" />
 
@@ -61,7 +62,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="54dp"
+        android:layout_marginTop="32dp"
         android:text="Category:" />
 
     <TextView
@@ -70,7 +71,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="60dp"
         android:text="TextView"
         android:textSize="24sp"
         android:textStyle="bold" />
@@ -84,5 +85,26 @@
         android:layout_marginBottom="115dp"
         android:backgroundTint="#00BCD4"
         android:text="Add location" />
+
+    <TextView
+        android:id="@+id/tvUploadChallenge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="112dp"
+        android:layout_marginEnd="17dp"
+        android:text="Upload Video"
+        android:textSize="20sp" />
+
+    <ImageView
+        android:id="@+id/ivUploadChallenge"
+        android:layout_width="47dp"
+        android:layout_height="46dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="135dp"
+        android:layout_marginEnd="52dp"
+        android:src="@android:drawable/ic_menu_upload" />
 
 </RelativeLayout>
