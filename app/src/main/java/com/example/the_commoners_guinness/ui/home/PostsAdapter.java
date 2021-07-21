@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.CountDownTimer;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -149,7 +151,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             queryVotesForNumVotes(post);
             setCountDownTimer(post);
             setOnDoubleTap(post);
-
         }
 
         private void setOnDoubleTap(Post post) {
@@ -212,8 +213,10 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             if (timeSincePostMillis < votingPeriodMillis) {
                 category.setVotingPeriod(true);
                 category.setVotingPeriodTime(votingPeriodMillis - timeSincePostMillis);
-                category.save();
+            } else {
+                category.setVotingPeriod(false);
             }
+            category.saveInBackground();
         }
 
         private void updateCountDownText() {
