@@ -16,7 +16,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.example.the_commoners_guinness.ui.dashboard.CreateFragment;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -27,18 +26,16 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.the_commoners_guinness.databinding.ActivityMapsBinding;
 import com.parse.ParseGeoPoint;
-import com.parse.ParseObject;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener,
+public class SetLocationMapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener,
         GoogleMap.OnMarkerDragListener {
 
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
-    private Post post;
     private Button btnSaveLocation;
     private LatLng finalPosition;
 
@@ -48,21 +45,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         binding = ActivityMapsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
         btnSaveLocation = findViewById(R.id.btnSaveLocation);
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-        //ParseGeoPoint currentLocation = getCurrentLocation();
         finalPosition = new LatLng(getCurrentLocation().getLatitude(), getCurrentLocation().getLongitude());
-
         btnSaveLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -78,12 +72,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
+     * This is where we can add markers or lines, add listeners or move the camera.
      * If Google Play services is not installed on the device, the user will be prompted to install
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
      */
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -98,13 +92,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private ParseGeoPoint getCurrentLocation() {
-        if (ActivityCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(MapsActivity.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
+        if (ActivityCompat.checkSelfPermission(SetLocationMapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(SetLocationMapsActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(SetLocationMapsActivity.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
         } else {
-            // getting last know user's location
-           // Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             Location location = getLastKnownLocation();
-            // checking if the location is null
             if (location != null) {
                 ParseGeoPoint currentPostLocation = new ParseGeoPoint(location.getLatitude(), location.getLongitude());
                 return currentPostLocation;
@@ -120,14 +111,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Location bestLocation = null;
         for (String provider : providers) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(MapsActivity.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
+                ActivityCompat.requestPermissions(SetLocationMapsActivity.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
             }
             Location l = mLocationManager.getLastKnownLocation(provider);
             if (l == null) {
                 continue;
             }
             if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
-                // Found best last known location: %s", l);
                 bestLocation = l;
             }
         }
@@ -165,45 +155,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 finalPosition.latitude,
                 finalPosition.longitude));
     }
-//
-//    private void saveCurrentPostLocation() {
-//        // requesting permission to get user's location
-//        if (ActivityCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-//            ActivityCompat.requestPermissions(MapsActivity.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
-//        }
-//        else {
-//            // getting last know user's location
-//            Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-//
-//            // checking if the location is null
-//            if(location != null){
-//                // if it isn't, save it to Back4App Dashboard
-//                ParseGeoPoint currentPostLocation = new ParseGeoPoint(location.getLatitude(), location.getLongitude());
-//
-//                if (post != null) {
-//                    post.put("location", currentPostLocation);
-//                    post.saveInBackground();
-//                } else {
-//                    // do something like coming back to the login activity
-//                }
-//            }
-//            else {
-//                Log.e("MapsActivity", "Error with saving post location");
-//            }
-//        }
-//    }
-//
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//
-//        switch (requestCode){
-//            case REQUEST_LOCATION:
-//                saveCurrentPostLocation();
-//                break;
-//        }
-//    }
-
 
 
 }

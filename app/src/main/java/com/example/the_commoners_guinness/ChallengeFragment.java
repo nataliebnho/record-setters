@@ -26,6 +26,7 @@ import android.widget.VideoView;
 
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
@@ -47,6 +48,9 @@ public class ChallengeFragment extends Fragment {
     TextView tvChallengeCategory;
     String categoryName;
     Category category;
+    Button btnAddLocationChallenge;
+    ParseGeoPoint location;
+    public static final int MAPS_REQUEST_CODE = 41;
 
     public ChallengeFragment() {
         // Required empty public constructor
@@ -72,6 +76,7 @@ public class ChallengeFragment extends Fragment {
         etCaptionChallenge = view.findViewById(R.id.etCaptionChallenge);
         btnShareChallenge = view.findViewById(R.id.btnPostChallenge);
         tvChallengeCategory = view.findViewById(R.id.tvChallengeCategory);
+        btnAddLocationChallenge = view.findViewById(R.id.btnAddLocationChallenge);
 
         category = Parcels.unwrap(getArguments().getParcelable("category"));
 ;       tvChallengeCategory.setText(category.getName());
@@ -80,6 +85,14 @@ public class ChallengeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 startRecordingVideo();
+            }
+        });
+
+        btnAddLocationChallenge.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getContext(), SetLocationMapsActivity.class);
+                startActivityForResult(i, MAPS_REQUEST_CODE);
             }
         });
 
@@ -129,6 +142,12 @@ public class ChallengeFragment extends Fragment {
                 Toast.makeText(getContext(), "Failed to record video",  Toast.LENGTH_LONG).show();
             }
         }
+        if (requestCode == MAPS_REQUEST_CODE) {
+            if (resultCode == getActivity().RESULT_OK) {
+                location = data.getParcelableExtra("Location");
+                Log.i("Location", location.toString());
+            }
+        }
     }
 
     private void savePost(ParseUser currentUser, String caption) {
@@ -137,7 +156,7 @@ public class ChallengeFragment extends Fragment {
         post.setCaption(caption);
 
         post.setCategory(category);
-
+        post.setLocation(location);
         post.setVideo(new ParseFile(mediaFile));
         post.setUser(currentUser);
 

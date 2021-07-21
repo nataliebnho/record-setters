@@ -24,7 +24,7 @@ import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
 import com.example.the_commoners_guinness.Category;
-import com.example.the_commoners_guinness.MapsActivity;
+import com.example.the_commoners_guinness.SetLocationMapsActivity;
 import com.example.the_commoners_guinness.Post;
 import com.example.the_commoners_guinness.R;
 import com.parse.ParseException;
@@ -99,7 +99,7 @@ public class CreateFragment extends Fragment {
         btnAddLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(getContext(), MapsActivity.class);
+                Intent i = new Intent(getContext(), SetLocationMapsActivity.class);
                 startActivityForResult(i, MAPS_REQUEST_CODE);
             }
         });

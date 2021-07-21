@@ -14,7 +14,7 @@
         android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
         android:layout_marginRight="10dp"
-        android:clickable="true"
+        android:layout_marginBottom="10dp"
         android:foreground="?android:attr/selectableItemBackground"
         app:cardCornerRadius="8dp"
         app:cardElevation="8dp">
@@ -161,5 +161,6 @@
         android:layout_marginEnd="71dp"
         android:textSize="34sp"
         tools:text="00:00:00" />
+
 
 </RelativeLayout>

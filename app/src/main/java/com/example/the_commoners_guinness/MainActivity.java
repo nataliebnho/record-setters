@@ -1,7 +1,10 @@
 package com.example.the_commoners_guinness;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -17,6 +20,7 @@ import com.parse.ParseObject;
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
+    private ImageView ivWorld;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,8 +36,17 @@ public class MainActivity extends AppCompatActivity {
                 R.id.navigation_home, R.id.navigation_create, R.id.navigation_profile)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+       // NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
+
+        ivWorld = findViewById(R.id.ivWorld);
+        ivWorld.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(MainActivity.this, WorldMapsActivity.class);
+                startActivity(i);
+            }
+        });
 
     }
 

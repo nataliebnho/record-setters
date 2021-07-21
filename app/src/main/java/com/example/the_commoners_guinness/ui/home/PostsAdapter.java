@@ -6,7 +6,9 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.CountDownTimer;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -15,12 +17,15 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.view.menu.MenuView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.example.the_commoners_guinness.Category;
 import com.example.the_commoners_guinness.ChallengeActivity;
 import com.example.the_commoners_guinness.Post;
 import com.example.the_commoners_guinness.R;
+import com.example.the_commoners_guinness.databinding.ItemViewBinding;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
@@ -86,6 +91,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         private int currentSize;
         private Category category;
         private TextView tvVotingTimeStatus;
+    //    LottieAnimationView lottieVote;
+
 
         private TextView tvCountdown;
         private CountDownTimer countDownTimer;
@@ -107,7 +114,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             tvNumVotes = itemView.findViewById(R.id.tvNumVotes);
             tvCountdown = itemView.findViewById(R.id.tvCountdown);
             tvVotingTimeStatus = itemView.findViewById(R.id.tvVotingTimeLeft);
-
+          //  lottieVote = itemView.findViewById(R.id.lottieVote);
+          //  lottieVote.setVisibility(View.INVISIBLE);
 
         }
 
@@ -140,13 +148,41 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             queryLikesForVoteImage(post, ivVote);
             queryVotesForNumVotes(post);
             setCountDownTimer(post);
+            setOnDoubleTap(post);
+
+        }
+
+        private void setOnDoubleTap(Post post) {
+            itemView.setOnTouchListener(new View.OnTouchListener() {
+                private GestureDetector gestureDetector = new GestureDetector(itemView.getContext(), new GestureDetector.SimpleOnGestureListener() {
+                    @Override
+                    public boolean onDoubleTap(MotionEvent e) {
+                        Log.d("TEST", "onDoubleTap");
+                     //   lottieVote.setVisibility(View.VISIBLE);
+                        if (category.getVotingPeriod()) {
+                            try {
+                                setLikeButtons(post);
+                            } catch (ParseException parseException) {
+                                parseException.printStackTrace();
+                            }
+                        } else {
+                            Toast.makeText(context.getApplicationContext(), "The voting period for this category has closed!", Toast.LENGTH_SHORT).show();
+                        }
+                        return super.onDoubleTap(e);
+                    }
+                });
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    gestureDetector.onTouchEvent(event);
+                    return true;
+                }
+            });
         }
 
         private void setCountDownTimer(Post post) throws ParseException {
             timeSincePostMillis = System.currentTimeMillis() - post.getCreatedAt().getTime();
             setCategoryVoteStatus(category);
 
-//            if (timeSincePostMillis > votingPeriodMillis) {
             if (!category.getVotingPeriod()) {
                 tvCountdown.setText("");
                 tvVotingTimeStatus.setText("The voting period for this category has closed");
@@ -194,28 +230,31 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                     @Override
                     public void onClick(View v) {
                         try {
-                            if (ivVote.isSelected()) {
-                                deleteVote(post);
-                                ivVote.setImageResource(R.drawable.vote_empty);
-                                ivVote.setSelected(false);
-                                tvNumVotes.setText("" + (currentSize - 1));
-                                currentSize -= 1;
-                                queryForUpdateWinner(category);
-                            } else {
-                                postVote(post);
-                                ivVote.setImageResource(R.drawable.vote);
-                                ivVote.setSelected(true);
-                                tvNumVotes.setText("" + (currentSize + 1));
-                                currentSize += 1;
-                                queryForUpdateWinner(category);
-                            }
+                            setLikeButtons(post);
                         } catch (ParseException e) {
                             e.printStackTrace();
                             Log.e(TAG, "post was not liked");
                         }
                     }
                 });
+        }
 
+        private void setLikeButtons(Post post) throws ParseException {
+            if (ivVote.isSelected()) {
+                deleteVote(post);
+                ivVote.setImageResource(R.drawable.vote_empty);
+                ivVote.setSelected(false);
+                tvNumVotes.setText("" + (currentSize - 1));
+                currentSize -= 1;
+                queryForUpdateWinner(category);
+            } else {
+                postVote(post);
+                ivVote.setImageResource(R.drawable.vote);
+                ivVote.setSelected(true);
+                tvNumVotes.setText("" + (currentSize + 1));
+                currentSize += 1;
+                queryForUpdateWinner(category);
+            }
         }
 
         private void queryVotesForNumVotes(Post post) {
@@ -232,8 +271,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         }
 
     }
-
-
 
     private void queryLikesForVoteImage(Post post, ImageView ivVotes) {
         ParseQuery query = post.getRelation("vote").getQuery().whereContains("objectId", ParseUser.getCurrentUser().getObjectId());
