@@ -56,6 +56,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
     public PostsAdapter(Context context, List<Post> posts) {
         this.context = context;
         this.posts = posts;
+
     }
 
     @NonNull
@@ -101,7 +102,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         private boolean timerRunning;
         private long timeLeftInMillis;
         private long timeSincePostMillis;
-        private long votingPeriodMillis = 120000; // There are 86400000 millis in one day
+        private long votingPeriodMillis = 86400000; // There are 86400000 millis in one day
         private long categoryTimeLeftInMillis;
 
         public ViewHolder(@NonNull @NotNull View itemView) {
@@ -149,42 +150,13 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
 
             queryLikesForVoteImage(post, ivVote);
             queryVotesForNumVotes(post);
-
-            setCategoryVoteStatus(category);
             setCountDownTimer(post);
-
             setOnDoubleTap(post);
-        }
-
-        private void setOnDoubleTap(Post post) {
-            itemView.setOnTouchListener(new View.OnTouchListener() {
-                private GestureDetector gestureDetector = new GestureDetector(itemView.getContext(), new GestureDetector.SimpleOnGestureListener() {
-                    @Override
-                    public boolean onDoubleTap(MotionEvent e) {
-                        Log.d("TEST", "onDoubleTap");
-                     //   lottieVote.setVisibility(View.VISIBLE);
-                        if (category.getVotingPeriod()) {
-                            try {
-                                setLikeButtons(post);
-                            } catch (ParseException parseException) {
-                                parseException.printStackTrace();
-                            }
-                        } else {
-                            Toast.makeText(context.getApplicationContext(), "The voting period for this category has closed!", Toast.LENGTH_SHORT).show();
-                        }
-                        return super.onDoubleTap(e);
-                    }
-                });
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    gestureDetector.onTouchEvent(event);
-                    return true;
-                }
-            });
         }
 
         private void setCountDownTimer(Post post) throws ParseException {
             timeSincePostMillis = System.currentTimeMillis() - post.getCreatedAt().getTime();
+        //    setCategoryVoteStatus(category);
 
             if (!category.getVotingPeriod()) {
                 tvCountdown.setText("");
@@ -212,40 +184,46 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         }
 
         private void setCategoryVoteStatus(Category category) throws ParseException {
-//            if (timeSincePostMillis < votingPeriodMillis) {
-//                category.setVotingPeriod(true);
-//                category.setVotingPeriodTime(votingPeriodMillis - timeSincePostMillis);
-//            } else {
-//                category.setVotingPeriod(false);
-//            }
-//            category.saveInBackground();
-            ParseQuery<Post> query = ParseQuery.getQuery(Post.class); // for each post
-            query.whereEqualTo(Post.KEY_CATEGORY, category); //query the posts in this category
-            query.findInBackground(new FindCallback<Post>() {
-                @Override
-                public void done(List<Post> posts, ParseException e) {
-                    for (Post post: posts) {
-                        timeSincePostMillis = System.currentTimeMillis() - post.getCreatedAt().getTime(); //calculate time since post
-                        if (timeSincePostMillis < votingPeriodMillis) { // if the time since the post is less than the voting period, then the category vote should open
-                            category.setVotingPeriod(true); // set the category voting period to true
-                            category.setVotingPeriodTime(votingPeriodMillis - timeSincePostMillis); // set the category voting time to this time
-                        } else { // if the time since the post is MORE than the voting period...
-                            if (!category.getVotingPeriod()) { // if the category is not already set to true, there is no post before within the category voting period
-                                                               // we need this check because if the post isn't in the voting period, there still could have been a newer post
-                                                                // in this category within the voting period
-                                category.setVotingPeriod(false);
-                            } else { // now we know that the category voting period status is true
-                                // need to check if the category needs to be closed, i.e. the category used to be true and now we need to set it to be false
-                                if (timeSincePostMillis > votingPeriodMillis) {
-                                    category.setVotingPeriod(false);
-                                }
-
-                            }
-                        }
+            if (timeSincePostMillis < votingPeriodMillis) {
+                category.setVotingPeriod(true);
+                category.setVotingPeriodTime(votingPeriodMillis - timeSincePostMillis);
+            } else {
+                if (!category.getVotingPeriod()) {
+                    category.setVotingPeriod(false);
+                } else {
+                    if (category.getVotingPeriodTime() <= 1) {
+                        category.setVotingPeriod(false);
                     }
-                    category.saveInBackground();
                 }
-            });
+            }
+            category.save();
+//            ParseQuery<Post> query = ParseQuery.getQuery(Post.class); // for each post
+//            query.whereEqualTo(Post.KEY_CATEGORY, category); //query the posts in this category
+//            query.findInBackground(new FindCallback<Post>() {
+//                @Override
+//                public void done(List<Post> posts, ParseException e) {
+//                    for (Post post: posts) {
+//                        timeSincePostMillis = System.currentTimeMillis() - post.getCreatedAt().getTime(); //calculate time since post
+//                        if (timeSincePostMillis < votingPeriodMillis) { // if the time since the post is less than the voting period, then the category vote should open
+//                            category.setVotingPeriod(true); // set the category voting period to true
+//                            category.setVotingPeriodTime(votingPeriodMillis - timeSincePostMillis); // set the category voting time to this time
+//                        } else { // if the time since the post is MORE than the voting period...
+//                            if (!category.getVotingPeriod()) { // if the category is not already set to true, there is no post before within the category voting period
+//                                                               // we need this check because if the post isn't in the voting period, there still could have been a newer post
+//                                                                // in this category within the voting period
+//                                category.setVotingPeriod(false);
+//                            } else { // now we know that the category voting period status is true
+//                                // need to check if the category needs to be closed, i.e. the category used to be true and now we need to set it to be false
+//                                if (timeSincePostMillis > votingPeriodMillis) {
+//                                    category.setVotingPeriod(false);
+//                                }
+//
+//                            }
+//                        }
+//                    }
+//                    category.saveInBackground();
+//                }
+//            });
         }
 
         private void updateCountDownText() {
@@ -255,6 +233,35 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
 
             String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds);
             tvCountdown.setText(timeLeftFormatted);
+        }
+
+
+
+        private void setOnDoubleTap(Post post) {
+            itemView.setOnTouchListener(new View.OnTouchListener() {
+                private GestureDetector gestureDetector = new GestureDetector(itemView.getContext(), new GestureDetector.SimpleOnGestureListener() {
+                    @Override
+                    public boolean onDoubleTap(MotionEvent e) {
+                        Log.d("TEST", "onDoubleTap");
+                        //   lottieVote.setVisibility(View.VISIBLE);
+                        if (category.getVotingPeriod()) {
+                            try {
+                                setLikeButtons(post);
+                            } catch (ParseException parseException) {
+                                parseException.printStackTrace();
+                            }
+                        } else {
+                            Toast.makeText(context.getApplicationContext(), "The voting period for this category has closed!", Toast.LENGTH_SHORT).show();
+                        }
+                        return super.onDoubleTap(e);
+                    }
+                });
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    gestureDetector.onTouchEvent(event);
+                    return true;
+                }
+            });
         }
 
         private void changeLikeButtons(Post post) {

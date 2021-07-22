@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.example.the_commoners_guinness.Category;
 import com.example.the_commoners_guinness.LoginActivity;
 import com.example.the_commoners_guinness.Post;
 import com.example.the_commoners_guinness.R;
@@ -70,6 +71,7 @@ public class HomeFragment extends Fragment {
 
         configureSwipeContainer(view);
         queryPosts();
+        setCategoryVoteStatus();
 
         btnLogout = view.findViewById(R.id.btnLogout);
 
@@ -101,6 +103,7 @@ public class HomeFragment extends Fragment {
     private void fetchTimelineAsync (int i) {
         adapter.clear();
         queryPosts();
+        setCategoryVoteStatus();
         swipeContainer.setRefreshing(false);
     }
 
@@ -126,5 +129,48 @@ public class HomeFragment extends Fragment {
 
     }
 
+    private void setCategoryVoteStatus() {
+        ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
+        query.include(Post.KEY_USER);
+        query.addDescendingOrder("createdAt");
+
+        ArrayList<String> seen = new ArrayList<String>();
+
+        query.findInBackground(new FindCallback<Post>() {
+            @Override
+            public void done(List<Post> posts, ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Issue with setting category status", e);
+                }
+                for (Post post: posts) {
+                    Category category = post.getCategory();
+                    try {
+                        category.fetchIfNeeded();
+                        if (seen.contains(category.getName())){
+                            continue;
+                        }
+                    } catch (ParseException parseException) {
+                        parseException.printStackTrace();
+                    }
+                    if (System.currentTimeMillis() - post.getCreatedAt().getTime() < 600000) {
+                        Log.i("Here", "here");
+                        category.setVotingPeriod(true);
+                        category.setVotingPeriodTime(600000 - (System.currentTimeMillis() - post.getCreatedAt().getTime()));
+
+                        try {
+                            category.fetchIfNeeded();
+                            seen.add(category.getName());
+                        } catch (ParseException parseException) {
+                            parseException.printStackTrace();
+                        }
+                    } else {
+                        category.setVotingPeriod(false);
+                    }
+                    category.saveInBackground();
+                }
+            }
+        });
+
+    }
 
 }
