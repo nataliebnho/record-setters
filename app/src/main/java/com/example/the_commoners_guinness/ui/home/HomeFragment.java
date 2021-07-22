@@ -2,6 +2,8 @@ package com.example.the_commoners_guinness.ui.home;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +26,7 @@ import com.example.the_commoners_guinness.LoginActivity;
 import com.example.the_commoners_guinness.Post;
 import com.example.the_commoners_guinness.R;
 import com.parse.FindCallback;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -71,7 +74,7 @@ public class HomeFragment extends Fragment {
 
         configureSwipeContainer(view);
         queryPosts();
-        setCategoryVoteStatus();
+        //setCategoryVoteStatus();
 
         btnLogout = view.findViewById(R.id.btnLogout);
 
@@ -83,6 +86,8 @@ public class HomeFragment extends Fragment {
                 getActivity().finish();
             }
         });
+
+        //setCategoryTime(allPosts);
     }
 
     private void configureSwipeContainer(View view) {
@@ -103,7 +108,7 @@ public class HomeFragment extends Fragment {
     private void fetchTimelineAsync (int i) {
         adapter.clear();
         queryPosts();
-        setCategoryVoteStatus();
+      //  setCategoryVoteStatus();
         swipeContainer.setRefreshing(false);
     }
 
@@ -128,6 +133,26 @@ public class HomeFragment extends Fragment {
         });
 
     }
+
+    private void queryFirstChallengePost() {
+        ParseQuery<Category> query = ParseQuery.getQuery(Category.class);
+
+        query.findInBackground(new FindCallback<Category>() {
+            @Override
+            public void done(List<Category> categories, ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Issue with retrieving posts", e);
+                }
+                for (Category category : categories) {
+                    if (category.getObjectId().equals("pYTi1iMX4u")) {
+                        category.remove("firstChallengePost");
+                        category.saveInBackground();
+                    }
+                }
+            }
+        });
+    }
+
 
 //    private void setCategoryVoteStatus() {
 //        ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
@@ -172,38 +197,83 @@ public class HomeFragment extends Fragment {
 //        });
 //
 //    }
-    private void setCategoryVoteStatus() {
-        ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
-        query.include(Post.KEY_USER);
-        query.addDescendingOrder("createdAt");
+//    private void setCategoryVoteStatus() {
+//        ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
+//        query.include(Post.KEY_USER);
+//        query.addDescendingOrder("createdAt");
+//
+//        ArrayList<Category> seen = new ArrayList<Category>();
+//
+//        query.findInBackground(new FindCallback<Post>() {
+//            @Override
+//            public void done(List<Post> posts, ParseException e) {
+//                if (e != null) {
+//                    Log.e(TAG, "Issue with setting category status", e);
+//                }
+//                for (Post post: posts) {
+//                    Category category = post.getCategory();
+//                    if (seen.contains(category)){
+//                        Log.i(TAG, seen.toString());
+//                        continue;
+//                    }
+//                    if (System.currentTimeMillis() - post.getCreatedAt().getTime() < 600000) {
+//                        category.setVotingPeriod(true);
+//                        category.setVotingPeriodTime(600000 - (System.currentTimeMillis() - post.getCreatedAt().getTime()));
+//                        seen.add(category);
+//                    } else {
+//                        category.setVotingPeriod(false);
+//                    }
+//                    category.saveInBackground();
+//                }
+//            }
+//        });
+//
+//    }
 
-        ArrayList<Category> seen = new ArrayList<Category>();
+//    private void setCategoryVoteStatus() {
+//        ParseQuery<Category> query = ParseQuery.getQuery(Category.class);
+//        query.addDescendingOrder("createdAt");
+//
+//        ArrayList<Category> seen = new ArrayList<Category>();
+//
+//        query.findInBackground(new FindCallback<Category>() {
+//            @Override
+//            public void done(List<Category> categories, ParseException e) {
+//                for (Category category: categories) {
+//                    if (System.currentTimeMillis() - category.getFirstChallengePost().getCreatedAt().getTime() > 84000000) {
+//
+//                    }
+//                }
+//            }
+//        });
+//
+//    }
 
-        query.findInBackground(new FindCallback<Post>() {
+
+
+
+    private void setCategoryTime(List<Post> posts) {
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
-            public void done(List<Post> posts, ParseException e) {
-                if (e != null) {
-                    Log.e(TAG, "Issue with setting category status", e);
-                }
+            public void run() {
                 for (Post post: posts) {
                     Category category = post.getCategory();
-                    if (seen.contains(category)){
-                        Log.i(TAG, seen.toString());
-                        continue;
+                    try {
+                        Boolean votingPeriod = ((Category) category.fetchIfNeeded()).getVotingPeriod();
+                        if (votingPeriod) {
+                            continue;
+                        } else {
+                            category.getVotingPeriodTime();
+                            category.setVotingPeriodTime(category.getVotingPeriodTime() - 1000);
+                            category.saveInBackground();
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
                     }
-                    if (System.currentTimeMillis() - post.getCreatedAt().getTime() < 600000) {
-                        Log.i("Here", "here");
-                        category.setVotingPeriod(true);
-                        category.setVotingPeriodTime(600000 - (System.currentTimeMillis() - post.getCreatedAt().getTime()));
-                        seen.add(category);
-                    } else {
-                        category.setVotingPeriod(false);
-                    }
-                    category.saveInBackground();
                 }
             }
-        });
-
+        }, 1000);
     }
+
 
 }

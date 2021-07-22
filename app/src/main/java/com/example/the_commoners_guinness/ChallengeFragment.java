@@ -120,6 +120,7 @@ public class ChallengeFragment extends Fragment {
                 savePost(ParseUser.getCurrentUser(), caption);
                 etCaptionChallenge.setText("");
                 vvVideoToPostChallenge.setBackgroundResource(0);
+
             }
         });
     }
@@ -223,10 +224,18 @@ public class ChallengeFragment extends Fragment {
                     Log.e(TAG, "Error while saving", e);
                     Toast.makeText(getContext(), "Error while saving!", Toast.LENGTH_SHORT).show();
                 }
-                //category.setPosts(post); ** Why isn't this working
                 Log.i(TAG, "Post save was successful!");
+                if (category.getFirstChallengePost() == null) {
+                    Log.i("Category", category.getName());
+                    Log.i("Is post null: ", String.valueOf(post.getObjectId()));
+                    category.setFirstChallengePost(post);
+                    category.saveInBackground();
+                }
             }
+
         });
+        // if the category's firstChallengePost field is null, then set the firstChallengePost to this post
+
     }
 
 }

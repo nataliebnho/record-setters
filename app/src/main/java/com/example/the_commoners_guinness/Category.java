@@ -2,6 +2,7 @@ package com.example.the_commoners_guinness;
 
 import androidx.annotation.Nullable;
 
+import com.parse.Parse;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
@@ -19,6 +20,7 @@ public class Category extends ParseObject {
     public static final String KEY_WINNERUSER = "winnerUser";
     public static final String KEY_VOTINGPERIOD = "votingPeriod";
     public static final String KEY_VOTINGPERIODTIME = "votingPeriodTime";
+    public static final String KEY_FIRSTCHALLENGEPOST = "firstChallengePost";
 
     public Category() {
     }
@@ -46,6 +48,10 @@ public class Category extends ParseObject {
     public long getVotingPeriodTime() { return getLong(KEY_VOTINGPERIODTIME); }
 
     public void setVotingPeriodTime(Long number) { put(KEY_VOTINGPERIODTIME, number); }
+
+    public ParseObject getFirstChallengePost() { return getParseObject(KEY_FIRSTCHALLENGEPOST); }
+
+    public void setFirstChallengePost(Post post) { put(KEY_FIRSTCHALLENGEPOST, post); }
 
     @Override
     public boolean equals(@Nullable @org.jetbrains.annotations.Nullable Object obj) {

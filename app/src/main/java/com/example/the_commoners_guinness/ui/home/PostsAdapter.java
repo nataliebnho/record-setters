@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.CountDownTimer;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -25,8 +27,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.airbnb.lottie.LottieAnimationView;
 import com.example.the_commoners_guinness.Category;
 import com.example.the_commoners_guinness.ChallengeActivity;
+import com.example.the_commoners_guinness.MainActivity;
 import com.example.the_commoners_guinness.Post;
 import com.example.the_commoners_guinness.R;
+import com.example.the_commoners_guinness.SplashScreenActivity;
 import com.example.the_commoners_guinness.databinding.ItemViewBinding;
 import com.parse.FindCallback;
 import com.parse.Parse;
@@ -42,6 +46,7 @@ import org.json.JSONArray;
 import org.parceler.Parcels;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -102,8 +107,9 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         private boolean timerRunning;
         private long timeLeftInMillis;
         private long timeSincePostMillis;
-        private long votingPeriodMillis = 86400000; // There are 86400000 millis in one day
+        private long votingPeriodMillis = 3300000; // There are 86400000 millis in one day
         private long categoryTimeLeftInMillis;
+        private Long timeSinceFirstChallengeMillis; // If there is no timeSinceFirstChallengemillis, automatically set it to higher than votingPeriod
 
         public ViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
@@ -123,11 +129,13 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         }
 
         public void bind(Post post) throws ParseException {
+            Log.i("Post", post.getObjectId() + post.getCreatedAt());
+
             tvUsername.setText(post.getUser().getUsername());
             tvCaption.setText(post.getCaption());
             category = post.getCategory();
+            setCountDownTimer(post);
             tvCategory.setText(category.fetchIfNeeded().getString("name"));
-
             ParseFile file = post.getVideo();
             vvPostVideo.setVideoURI(Uri.parse(file.getUrl()));
             vvPostVideo.requestFocus();
@@ -150,29 +158,66 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
 
             queryLikesForVoteImage(post, ivVote);
             queryVotesForNumVotes(post);
-            setCountDownTimer(post);
+
             setOnDoubleTap(post);
         }
 
-        private void setCountDownTimer(Post post) throws ParseException {
-            timeSincePostMillis = System.currentTimeMillis() - post.getCreatedAt().getTime();
-        //    setCategoryVoteStatus(category);
 
-            if (!category.getVotingPeriod()) {
+//        private void setCountDownTimer(Post post) throws ParseException {
+//          //  timeSincePostMillis = System.currentTimeMillis() - post.getCreatedAt().getTime();
+//        //    setCategoryVoteStatus(category);
+//
+//            if (!category.getVotingPeriod()) {
+//                tvCountdown.setText("");
+//                tvVotingTimeStatus.setText("The voting period for this category has closed");
+//                ivVote.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        Toast.makeText(context.getApplicationContext(), "The voting period for this category has closed!", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+//            } else {
+//             //   category.setVotingPeriodTime(timeSincePostMillis);
+//              //  category.saveInBackground();
+//                changeLikeButtons(post);
+//
+//                countDownTimer = new CountDownTimer(category.getVotingPeriodTime(), 1000) {
+//                    @Override
+//                    public void onTick(long millisUntilFinished) {
+//                        category.setVotingPeriodTime(millisUntilFinished);
+//                        updateCountDownText();
+//                    }
+//                    @Override
+//                    public void onFinish() {
+//                        tvCountdown.setText("");
+//                    }
+//                }.start();
+//            }
+//        }
+
+        private void setCountDownTimer(Post post) throws ParseException {
+            if (category.fetchIfNeeded().getParseObject("firstChallengePost") != null) {
+                Date date = (Date) category.fetchIfNeeded().getParseObject("firstChallengePost").fetchIfNeeded().get("createdAt");
+                timeSinceFirstChallengeMillis = System.currentTimeMillis() - (category.getFirstChallengePost().getCreatedAt()).getTime();
+                timeLeftInMillis = votingPeriodMillis - timeSinceFirstChallengeMillis;
+            }
+
+            if (timeSinceFirstChallengeMillis == null || timeSinceFirstChallengeMillis > votingPeriodMillis) {
+                category.remove("firstChallengePost");
                 tvCountdown.setText("");
-                tvVotingTimeStatus.setText("The voting period for this category has closed");
+                tvVotingTimeStatus.setText("The voting period for this category is closed");
                 ivVote.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Toast.makeText(context.getApplicationContext(), "The voting period for this category has closed!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context.getApplicationContext(), "The voting period for this category is closed!", Toast.LENGTH_SHORT).show();
                     }
                 });
             } else {
                 changeLikeButtons(post);
-                countDownTimer = new CountDownTimer(category.getVotingPeriodTime(), 1000) {
+                countDownTimer = new CountDownTimer(timeLeftInMillis, 1000) {
                     @Override
                     public void onTick(long millisUntilFinished) {
-                        category.setVotingPeriodTime(millisUntilFinished);
+                        timeLeftInMillis = millisUntilFinished;
                         updateCountDownText();
                     }
                     @Override
@@ -183,31 +228,39 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             }
         }
 
-        private void setCategoryVoteStatus(Category category) throws ParseException {
-            if (timeSincePostMillis < votingPeriodMillis) {
-                category.setVotingPeriod(true);
-                category.setVotingPeriodTime(votingPeriodMillis - timeSincePostMillis);
-            } else {
-                if (!category.getVotingPeriod()) {
-                    category.setVotingPeriod(false);
-                } else {
-                    if (category.getVotingPeriodTime() <= 1) {
-                        category.setVotingPeriod(false);
-                    }
-                }
-            }
-            category.save();
-        }
+//        private void setCategoryVoteStatus(Category category) throws ParseException {
+//            if (timeSincePostMillis < votingPeriodMillis) {
+//                category.setVotingPeriod(true);
+//                category.setVotingPeriodTime(votingPeriodMillis - timeSincePostMillis);
+//            } else {
+//                if (!category.getVotingPeriod()) {
+//                    category.setVotingPeriod(false);
+//                } else {
+//                    if (category.getVotingPeriodTime() <= 1) {
+//                        category.setVotingPeriod(false);
+//                    }
+//                }
+//            }
+//            category.save();
+//        }
+
+//        private void updateCountDownText() {
+//            int hours   = (int) ((category.getVotingPeriodTime() / (1000*60*60)) % 24);
+//            int minutes = (int) ((category.getVotingPeriodTime() / (1000*60)) % 60);
+//            int seconds = (int) (category.getVotingPeriodTime() / 1000) % 60 ;
+//
+//            String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds);
+//            tvCountdown.setText(timeLeftFormatted);
+//        }
 
         private void updateCountDownText() {
-            int hours   = (int) ((category.getVotingPeriodTime() / (1000*60*60)) % 24);
-            int minutes = (int) ((category.getVotingPeriodTime() / (1000*60)) % 60);
-            int seconds = (int) (category.getVotingPeriodTime() / 1000) % 60 ;
+            int hours   = (int) ((timeLeftInMillis / (1000*60*60)) % 24);
+            int minutes = (int) ((timeLeftInMillis / (1000*60)) % 60);
+            int seconds = (int) (timeLeftInMillis / 1000) % 60 ;
 
             String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds);
             tvCountdown.setText(timeLeftFormatted);
         }
-
 
 
         private void setOnDoubleTap(Post post) {
@@ -217,7 +270,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                     public boolean onDoubleTap(MotionEvent e) {
                         Log.d("TEST", "onDoubleTap");
                         //   lottieVote.setVisibility(View.VISIBLE);
-                        if (category.getVotingPeriod()) {
+                        if (timeSinceFirstChallengeMillis != null) {
                             try {
                                 setLikeButtons(post);
                             } catch (ParseException parseException) {
