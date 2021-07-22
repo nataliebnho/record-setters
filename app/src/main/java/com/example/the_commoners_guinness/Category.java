@@ -1,5 +1,7 @@
 package com.example.the_commoners_guinness;
 
+import androidx.annotation.Nullable;
+
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
@@ -45,4 +47,16 @@ public class Category extends ParseObject {
 
     public void setVotingPeriodTime(Long number) { put(KEY_VOTINGPERIODTIME, number); }
 
+    @Override
+    public boolean equals(@Nullable @org.jetbrains.annotations.Nullable Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (this.getObjectId().equals(((Category) obj).getObjectId())) {
+            return true;
+        }
+
+        return false;
+    }
 }

@@ -197,33 +197,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                 }
             }
             category.save();
-//            ParseQuery<Post> query = ParseQuery.getQuery(Post.class); // for each post
-//            query.whereEqualTo(Post.KEY_CATEGORY, category); //query the posts in this category
-//            query.findInBackground(new FindCallback<Post>() {
-//                @Override
-//                public void done(List<Post> posts, ParseException e) {
-//                    for (Post post: posts) {
-//                        timeSincePostMillis = System.currentTimeMillis() - post.getCreatedAt().getTime(); //calculate time since post
-//                        if (timeSincePostMillis < votingPeriodMillis) { // if the time since the post is less than the voting period, then the category vote should open
-//                            category.setVotingPeriod(true); // set the category voting period to true
-//                            category.setVotingPeriodTime(votingPeriodMillis - timeSincePostMillis); // set the category voting time to this time
-//                        } else { // if the time since the post is MORE than the voting period...
-//                            if (!category.getVotingPeriod()) { // if the category is not already set to true, there is no post before within the category voting period
-//                                                               // we need this check because if the post isn't in the voting period, there still could have been a newer post
-//                                                                // in this category within the voting period
-//                                category.setVotingPeriod(false);
-//                            } else { // now we know that the category voting period status is true
-//                                // need to check if the category needs to be closed, i.e. the category used to be true and now we need to set it to be false
-//                                if (timeSincePostMillis > votingPeriodMillis) {
-//                                    category.setVotingPeriod(false);
-//                                }
-//
-//                            }
-//                        }
-//                    }
-//                    category.saveInBackground();
-//                }
-//            });
         }
 
         private void updateCountDownText() {
