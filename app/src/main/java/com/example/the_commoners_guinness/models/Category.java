@@ -1,15 +1,10 @@
-package com.example.the_commoners_guinness;
+package com.example.the_commoners_guinness.models;
 
 import androidx.annotation.Nullable;
 
-import com.parse.Parse;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
-
-import org.parceler.Parcel;
-
-import java.util.List;
 
 //@Parcel (analyze = Category.class)
 @ParseClassName("Category")

@@ -1,7 +1,6 @@
-package com.example.the_commoners_guinness;
+package com.example.the_commoners_guinness.ui.profile;
 
 import android.content.Context;
-import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +9,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.the_commoners_guinness.ui.home.PostsAdapter;
+import com.example.the_commoners_guinness.models.Category;
+import com.example.the_commoners_guinness.R;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -20,7 +20,6 @@ public class BadgesAdapter extends RecyclerView.Adapter<BadgesAdapter.ViewHolder
 
     private static final String TAG = "BADGESADAPTER";
     private Context context;
-    //private List<String> categoryNames;
     private List<Category> categories;
 
     public BadgesAdapter(Context context, List<Category> categories) {

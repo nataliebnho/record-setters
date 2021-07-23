@@ -13,19 +13,19 @@
 
     <fragment
         android:id="@+id/navigation_create"
-        android:name="com.example.the_commoners_guinness.ui.dashboard.CreateFragment"
+        android:name="com.example.the_commoners_guinness.ui.create.CreateFragment"
         android:label="@string/title_create"
         tools:layout="@layout/fragment_create" />
 
     <fragment
         android:id="@+id/navigation_viewChallenges"
-        android:name="com.example.the_commoners_guinness.AllChallengesFragment"
+        android:name="com.example.the_commoners_guinness.ui.challenges.AllChallengesFragment"
         android:label="Challenges"
         tools:layout="@layout/fragment_all_challenges" />
 
     <fragment
         android:id="@+id/navigation_profile"
-        android:name="com.example.the_commoners_guinness.ui.notifications.ProfileFragment"
+        android:name="com.example.the_commoners_guinness.ui.profile.ProfileFragment"
         android:label="@string/title_profile"
         tools:layout="@layout/fragment_profile" />
 </navigation>

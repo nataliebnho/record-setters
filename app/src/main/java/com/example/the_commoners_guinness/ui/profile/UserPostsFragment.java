@@ -1,4 +1,4 @@
-package com.example.the_commoners_guinness.ChildFragment;
+package com.example.the_commoners_guinness.ui.profile;
 
 import android.os.Bundle;
 
@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.the_commoners_guinness.Category;
 import com.example.the_commoners_guinness.R;
 
 import org.jetbrains.annotations.NotNull;
@@ -37,7 +36,6 @@ public class UserPostsFragment extends Fragment {
     public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
     }
-
 
 
 }

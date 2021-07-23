@@ -1,4 +1,4 @@
-package com.example.the_commoners_guinness;
+package com.example.the_commoners_guinness.ui.challenges;
 
 import android.content.Context;
 import android.util.Log;
@@ -11,12 +11,13 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.the_commoners_guinness.ui.home.PostsAdapter;
+import com.example.the_commoners_guinness.R;
+import com.example.the_commoners_guinness.models.Category;
+import com.example.the_commoners_guinness.models.Post;
 import com.parse.FindCallback;
 import com.parse.ParseQuery;
 
 import org.jetbrains.annotations.NotNull;
-import org.w3c.dom.Text;
 
 import java.text.ParseException;
 import java.util.List;
@@ -72,13 +73,7 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.Vi
 
         public ViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
-            tvCategoryNameCV = itemView.findViewById(R.id.tvCategoryNameCV);
-            tvCountdownView = itemView.findViewById(R.id.tvCountdownView);
-            tvUsernameFirstCV = itemView.findViewById(R.id.tvUsernameFirstCV);
-            tvUsernameSecondCV = itemView.findViewById(R.id.tvUsernameSecondCV);
-            tvUsernameThirdCV = itemView.findViewById(R.id.tvUsernameThirdCV);
-            rlExpandable = itemView.findViewById(R.id.rlExpandable);
-            rlExpandable.setVisibility(View.GONE);
+            findViews();
         }
 
         public void bind(Category category) throws ParseException, com.parse.ParseException {
@@ -96,10 +91,6 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.Vi
                     }
                 }
             });
-
-             // this is setting the leaderboard
-          //  tvCountdownView.setText(String.valueOf((int) categoryT.getFirstChallengePost().getCreatedAt().getTime()));
-
         }
 
         public void queryCategoryPosts() {
@@ -134,7 +125,6 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.Vi
 
         public void setLeaderboardUsernamesandVotes() throws com.parse.ParseException {
             Log.i(TAG, String.valueOf(numLeaderboard));
-            //Will clean this logic later
             if (numLeaderboard >= 1) {
                 tvUsernameFirstCV.setText(leaderboard[0].getUser().getUsername());
               //  tvNumVotesFirstCV.setText(String.valueOf(leaderboard[0].get("voteCount")));
@@ -149,6 +139,17 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.Vi
                 //tvNumVotesThird.setText(String.valueOf(leaderboard[2].get("voteCount")));
 
             }
+        }
+
+        private void findViews() {
+            tvCategoryNameCV = itemView.findViewById(R.id.tvCategoryNameCV);
+            tvCountdownView = itemView.findViewById(R.id.tvCountdownView);
+            tvUsernameFirstCV = itemView.findViewById(R.id.tvUsernameFirstCV);
+            tvUsernameSecondCV = itemView.findViewById(R.id.tvUsernameSecondCV);
+            tvUsernameThirdCV = itemView.findViewById(R.id.tvUsernameThirdCV);
+            rlExpandable = itemView.findViewById(R.id.rlExpandable);
+            rlExpandable.setVisibility(View.GONE);
+
         }
 
     }

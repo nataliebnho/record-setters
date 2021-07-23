@@ -1,6 +1,5 @@
-package com.example.the_commoners_guinness;
+package com.example.the_commoners_guinness.models;
 
-import com.parse.Parse;
 import com.parse.ParseClassName;
 import com.parse.ParseFile;
 import com.parse.ParseGeoPoint;

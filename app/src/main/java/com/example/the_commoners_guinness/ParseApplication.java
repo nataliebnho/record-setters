@@ -2,6 +2,8 @@ package com.example.the_commoners_guinness;
 
 import android.app.Application;
 
+import com.example.the_commoners_guinness.models.Category;
+import com.example.the_commoners_guinness.models.Post;
 import com.parse.Parse;
 import com.parse.ParseObject;
 
@@ -12,7 +14,6 @@ public class ParseApplication extends Application {
         super.onCreate();
         ParseObject.registerSubclass(Post.class);
         ParseObject.registerSubclass(Category.class);
-        ParseObject.registerSubclass(Leaderboard.class);
 
         Parse.initialize(new Parse.Configuration.Builder(this)
                 .applicationId(getString(R.string.back4app_app_id))

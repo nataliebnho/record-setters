@@ -5,9 +5,6 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.CountDownTimer;
-import android.os.Handler;
-import android.os.Looper;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -15,25 +12,18 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.view.menu.MenuView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.airbnb.lottie.LottieAnimationView;
-import com.example.the_commoners_guinness.Category;
+import com.example.the_commoners_guinness.models.Category;
 import com.example.the_commoners_guinness.ChallengeActivity;
-import com.example.the_commoners_guinness.MainActivity;
-import com.example.the_commoners_guinness.Post;
+import com.example.the_commoners_guinness.models.Post;
 import com.example.the_commoners_guinness.R;
-import com.example.the_commoners_guinness.SplashScreenActivity;
-import com.example.the_commoners_guinness.databinding.ItemViewBinding;
 import com.parse.FindCallback;
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
@@ -42,10 +32,8 @@ import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONArray;
 import org.parceler.Parcels;
 
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -100,15 +88,11 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         private int currentSize;
         private Category category;
         private TextView tvVotingTimeStatus;
-    //    LottieAnimationView lottieVote;
 
         private TextView tvCountdown;
         private CountDownTimer countDownTimer;
-        private boolean timerRunning;
         private long timeLeftInMillis;
-        private long timeSincePostMillis;
-        private long votingPeriodMillis = 300000; // There are 86400000 millis in one day
-        private long categoryTimeLeftInMillis;
+        private long votingPeriodMillis = 86400000; // There are 86400000 millis in one day
         private Long timeSinceFirstChallengeMillis;
 
         public ViewHolder(@NonNull @NotNull View itemView) {
@@ -129,18 +113,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             tvUsername.setText(post.getUser().getUsername());
             tvCaption.setText(post.getCaption());
             category = post.getCategory();
-            setCountDownTimer(post);
             tvCategory.setText(category.fetchIfNeeded().getString("name"));
-            ParseFile file = post.getVideo();
-            vvPostVideo.setVideoURI(Uri.parse(file.getUrl()));
-            vvPostVideo.requestFocus();
-            vvPostVideo.start();
-            vvPostVideo.setOnCompletionListener ( new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mediaPlayer) {
-                    vvPostVideo.start();
-                }
-            });
 
             ivChallenge.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -151,10 +124,24 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                 }
             });
 
+            setCountDownTimer(post);
+            configureVideoView(post);
             queryLikesForVoteImage(post, ivVote);
             queryVotesForNumVotes(post);
-
             setOnDoubleTap(post);
+        }
+
+        private void configureVideoView(Post post) {
+            ParseFile file = post.getVideo();
+            vvPostVideo.setVideoURI(Uri.parse(file.getUrl()));
+            vvPostVideo.requestFocus();
+            vvPostVideo.start();
+            vvPostVideo.setOnCompletionListener ( new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mediaPlayer) {
+                    vvPostVideo.start();
+                }
+            });
         }
 
         private void setCountDownTimer(Post post) throws ParseException {
@@ -165,30 +152,38 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             }
 
             if (timeSinceFirstChallengeMillis == null || timeSinceFirstChallengeMillis > votingPeriodMillis) {
-                category.remove("firstChallengePost");
-                category.saveInBackground();
-                tvCountdown.setText("");
-                tvVotingTimeStatus.setText("The voting period for this category is closed");
-                ivVote.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Toast.makeText(context.getApplicationContext(), "The voting period for this category is closed!", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                votingPeriodClosedLogic();
             } else {
-                changeLikeButtons(post);
-                countDownTimer = new CountDownTimer(timeLeftInMillis, 1000) {
-                    @Override
-                    public void onTick(long millisUntilFinished) {
-                        timeLeftInMillis = millisUntilFinished;
-                        updateCountDownText();
-                    }
-                    @Override
-                    public void onFinish() {
-                        tvCountdown.setText("");
-                    }
-                }.start();
+                votingPeriodOpenLogic(post);
             }
+        }
+
+        private void votingPeriodOpenLogic(Post post) {
+            changeLikeButtons(post);
+            countDownTimer = new CountDownTimer(timeLeftInMillis, 1000) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    timeLeftInMillis = millisUntilFinished;
+                    updateCountDownText();
+                }
+                @Override
+                public void onFinish() {
+                    tvCountdown.setText("");
+                }
+            }.start();
+        }
+
+        private void votingPeriodClosedLogic() {
+            category.remove("firstChallengePost");
+            category.saveInBackground();
+            tvCountdown.setText("");
+            tvVotingTimeStatus.setText("The voting period for this category is closed");
+            ivVote.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(context.getApplicationContext(), "The voting period for this category is closed!", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
 
         private void updateCountDownText() {
@@ -206,8 +201,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                 private GestureDetector gestureDetector = new GestureDetector(itemView.getContext(), new GestureDetector.SimpleOnGestureListener() {
                     @Override
                     public boolean onDoubleTap(MotionEvent e) {
-                        Log.d("TEST", "onDoubleTap");
-                        //   lottieVote.setVisibility(View.VISIBLE);
                         if (timeSinceFirstChallengeMillis != null) {
                             try {
                                 setLikeButtons(post);
@@ -285,12 +278,10 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                         //do not like
                         ivVotes.setImageResource(R.drawable.vote_empty);
                         ivVotes.setSelected(false);
-                        Log.d(TAG, "current user not liked it");
                     } else {
                         // display that it is liked
                         ivVotes.setImageResource(R.drawable.vote);
                         ivVotes.setSelected(true);
-                        Log.d(TAG, "current user did already liked it");
                     }
                 }
             }
@@ -309,7 +300,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                     Log.e(TAG, "Issue with retrieving posts", e);
                 }
                 try {
-                    Log.i("Winning post: ", posts.get(0).getObjectId());
                     category.setWinner(posts.get(0));
                     category.setWinnerUser(posts.get(0).getUser());
                     category.save();

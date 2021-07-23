@@ -14,6 +14,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.the_commoners_guinness.models.Category;
+import com.example.the_commoners_guinness.models.Post;
 import com.example.the_commoners_guinness.ui.home.PostsAdapter;
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -62,8 +64,15 @@ public class LeaderboardFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        categoryPosts = new ArrayList<>();
-        adapter = new PostsAdapter(getContext(), categoryPosts);
+        findViews(view);
+        setRecyclerView();
+
+        category = Parcels.unwrap(getArguments().getParcelable("category"));
+        tvLeaderboardCategory.setText(category.getName());
+        queryCategoryPosts();
+    }
+
+    private void findViews(View view) {
         rvCategoryPosts = view.findViewById(R.id.rvCategoryPosts);
         tvLeaderboardCategory = view.findViewById(R.id.tvLeaderboardCategory);
         tvUsernameFirst = view.findViewById(R.id.tvUsernameFirstCV);
@@ -72,15 +81,15 @@ public class LeaderboardFragment extends Fragment {
         tvNumVotesFirst = view.findViewById(R.id.tvNumVotesFirst);
         tvNumVotesSecond = view.findViewById(R.id.tvNumVotesSecond);
         tvNumVotesThird = view.findViewById(R.id.tvNumVotesThird);
+    }
 
+    private void setRecyclerView() {
+        categoryPosts = new ArrayList<>();
+        adapter = new PostsAdapter(getContext(), categoryPosts);
         rvCategoryPosts.setAdapter(adapter);
         rvCategoryPosts.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        category = Parcels.unwrap(getArguments().getParcelable("category"));
-        tvLeaderboardCategory.setText(category.getName());
-
-        queryCategoryPosts();
     }
+
 
     public void queryCategoryPosts() {
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);

@@ -1,4 +1,4 @@
-package com.example.the_commoners_guinness;
+package com.example.the_commoners_guinness.ui.challenges;
 
 import android.os.Bundle;
 
@@ -13,6 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.the_commoners_guinness.R;
+import com.example.the_commoners_guinness.models.Category;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
@@ -51,12 +53,16 @@ public class AllChallengesFragment extends Fragment {
 
         rvCategories = view.findViewById(R.id.rvChallengeType);
         allCategories = new ArrayList<>();
-        adapter = new ChallengesAdapter(getContext(), allCategories);
 
-        rvCategories.setAdapter(adapter);
-        rvCategories.setLayoutManager(new LinearLayoutManager(getContext()));
+        setRVAdapter();
         queryCategories();
 
+    }
+
+    private void setRVAdapter() {
+        adapter = new ChallengesAdapter(getContext(), allCategories);
+        rvCategories.setAdapter(adapter);
+        rvCategories.setLayoutManager(new LinearLayoutManager(getContext()));
     }
 
     private void queryCategories() {
@@ -70,15 +76,10 @@ public class AllChallengesFragment extends Fragment {
                 if (e != null) {
                     Log.e(TAG, "Issue with retrieving posts", e);
                 }
-                for (Category category: categories) {
-                    Log.i(TAG, "Category: " + category.getName());
-                }
                 allCategories.addAll(categories);
                 adapter.notifyDataSetChanged();
             }
         });
-
     }
-
 
 }
