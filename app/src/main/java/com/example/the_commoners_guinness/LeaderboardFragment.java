@@ -66,9 +66,9 @@ public class LeaderboardFragment extends Fragment {
         adapter = new PostsAdapter(getContext(), categoryPosts);
         rvCategoryPosts = view.findViewById(R.id.rvCategoryPosts);
         tvLeaderboardCategory = view.findViewById(R.id.tvLeaderboardCategory);
-        tvUsernameFirst = view.findViewById(R.id.tvUsernameFirst);
-        tvUsernameSecond = view.findViewById(R.id.tvUsernameSecond);
-        tvUsernameThird = view.findViewById(R.id.tvUsernameThird);
+        tvUsernameFirst = view.findViewById(R.id.tvUsernameFirstCV);
+        tvUsernameSecond = view.findViewById(R.id.tvUsernameSecondCV);
+        tvUsernameThird = view.findViewById(R.id.tvUsernameThirdCV);
         tvNumVotesFirst = view.findViewById(R.id.tvNumVotesFirst);
         tvNumVotesSecond = view.findViewById(R.id.tvNumVotesSecond);
         tvNumVotesThird = view.findViewById(R.id.tvNumVotesThird);
@@ -82,7 +82,7 @@ public class LeaderboardFragment extends Fragment {
         queryCategoryPosts();
     }
 
-    private void queryCategoryPosts() {
+    public void queryCategoryPosts() {
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         query.include(Post.KEY_USER);
         query.setLimit(20);

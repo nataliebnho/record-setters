@@ -91,7 +91,8 @@ public class CreateFragment extends Fragment {
     Category category;
     AutoCompleteTextView actv;
     List<String> categoryNames;
-    List<Category> categoryObjects = new ArrayList<>();;
+    List<Category> categoryObjects = new ArrayList<>();
+    long votingPeriodMillis = 480000;
 
     public CreateFragment() {
         // Required empty public constructor
@@ -305,7 +306,7 @@ public class CreateFragment extends Fragment {
                     Toast.makeText(getContext(), "Error while saving!", Toast.LENGTH_SHORT).show();
                 }
                 Log.i(TAG, "Post save was successful!");
-                if (categoryObj.getFirstChallengePost() == null) {
+                if (categoryObj.getFirstChallengePost() == null || category.getFirstChallengePost().getCreatedAt().getTime() > votingPeriodMillis) {
                     Log.i("Category", categoryObj.getName());
                     Log.i("Is post null: ", String.valueOf(post.getObjectId()));
                     categoryObj.setFirstChallengePost(post);

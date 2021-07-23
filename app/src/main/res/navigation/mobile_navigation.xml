@@ -18,6 +18,12 @@
         tools:layout="@layout/fragment_create" />
 
     <fragment
+        android:id="@+id/navigation_viewChallenges"
+        android:name="com.example.the_commoners_guinness.AllChallengesFragment"
+        android:label="Challenges"
+        tools:layout="@layout/fragment_all_challenges" />
+
+    <fragment
         android:id="@+id/navigation_profile"
         android:name="com.example.the_commoners_guinness.ui.notifications.ProfileFragment"
         android:label="@string/title_profile"

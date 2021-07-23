@@ -107,7 +107,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         private boolean timerRunning;
         private long timeLeftInMillis;
         private long timeSincePostMillis;
-        private long votingPeriodMillis = 86400000; // There are 86400000 millis in one day
+        private long votingPeriodMillis = 300000; // There are 86400000 millis in one day
         private long categoryTimeLeftInMillis;
         private Long timeSinceFirstChallengeMillis;
 
@@ -126,8 +126,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         }
 
         public void bind(Post post) throws ParseException {
-            Log.i("Post", post.getObjectId() + post.getCreatedAt());
-
             tvUsername.setText(post.getUser().getUsername());
             tvCaption.setText(post.getCaption());
             category = post.getCategory();
@@ -167,6 +165,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             }
 
             if (timeSinceFirstChallengeMillis == null || timeSinceFirstChallengeMillis > votingPeriodMillis) {
+                category.remove("firstChallengePost");
+                category.saveInBackground();
                 tvCountdown.setText("");
                 tvVotingTimeStatus.setText("The voting period for this category is closed");
                 ivVote.setOnClickListener(new View.OnClickListener() {

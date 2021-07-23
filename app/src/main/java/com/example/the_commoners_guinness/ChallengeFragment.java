@@ -54,6 +54,7 @@ public class ChallengeFragment extends Fragment {
     Category category;
     Button btnAddLocationChallenge;
     ParseGeoPoint location;
+    long votingPeriodMillis = 300000;
     private static final int VIDEO_CAPTURE = 10;
     public static final int VIDEO_UPLOAD = 11;
     public static final int MAPS_REQUEST_CODE = 41;
@@ -223,9 +224,7 @@ public class ChallengeFragment extends Fragment {
                     Toast.makeText(getContext(), "Error while saving!", Toast.LENGTH_SHORT).show();
                 }
                 Log.i(TAG, "Post save was successful!");
-                if (category.getFirstChallengePost() == null) {
-                    Log.i("Category", category.getName());
-                    Log.i("Is post null: ", String.valueOf(post.getObjectId()));
+                if (category.getFirstChallengePost() == null || category.getFirstChallengePost().getCreatedAt().getTime() > votingPeriodMillis) {
                     category.setFirstChallengePost(post);
                     category.saveInBackground();
                 }
