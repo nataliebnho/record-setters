@@ -31,20 +31,36 @@
         android:id="@+id/vvVideoToPostChallenge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@id/etCategory"
+        android:layout_above="@id/autoCompleteTextView"
         android:layout_below="@id/btnTakeVideoChallenge"
         android:layout_centerInParent="true" />
 
-    <EditText
-        android:id="@+id/etCategory"
-        android:layout_width="279dp"
+<!--    <EditText-->
+<!--        android:id="@+id/etCategory"-->
+<!--        android:layout_width="279dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_alignParentBottom="true"-->
+<!--        android:layout_centerHorizontal="true"-->
+<!--        android:layout_marginBottom="238dp"-->
+<!--        android:ems="10"-->
+<!--        android:hint="Enter your category"-->
+<!--        android:inputType="textPersonName" />-->
+
+    <AutoCompleteTextView
+        android:id="@+id/autoCompleteTextView"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_above="@+id/etCaptionChallenge"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="238dp"
-        android:ems="10"
-        android:hint="Enter your category"
-        android:inputType="textPersonName" />
+        android:layout_marginLeft="106dp"
+        android:layout_marginTop="17dp"
+        android:layout_marginBottom="7dp"
+        android:hint="Enter a category"
+        android:ems="50"
+        android:text="">
+
+        <requestFocus />
+    </AutoCompleteTextView>
 
     <EditText
         android:id="@+id/etCaptionChallenge"
@@ -56,6 +72,7 @@
         android:ems="10"
         android:hint="Write a caption"
         android:inputType="textPersonName" />
+
 
     <Button
         android:id="@+id/btnPostChallenge"

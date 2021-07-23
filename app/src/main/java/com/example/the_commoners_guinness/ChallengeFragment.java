@@ -205,9 +205,7 @@ public class ChallengeFragment extends Fragment {
 
     private void savePost(ParseUser currentUser, String caption) {
         Post post = new Post();
-
         post.setCaption(caption);
-
         post.setCategory(category);
 
         if (location != null) {

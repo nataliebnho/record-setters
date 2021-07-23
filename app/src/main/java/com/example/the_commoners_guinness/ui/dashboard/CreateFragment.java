@@ -6,25 +6,37 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.icu.util.Output;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.MediaController;
 import android.widget.Toast;
 import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
@@ -33,9 +45,12 @@ import com.example.the_commoners_guinness.Category;
 import com.example.the_commoners_guinness.SetLocationMapsActivity;
 import com.example.the_commoners_guinness.Post;
 import com.example.the_commoners_guinness.R;
+import com.parse.FindCallback;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseGeoPoint;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
@@ -52,11 +67,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class CreateFragment extends Fragment {
 
-    public final String APP_TAG = "CreateFragment";
+    public final String TAG = "CreateFragment";
     ImageButton btnTakeVideo;
     ImageView btnUpload;
     Button btnShare;
@@ -71,6 +88,10 @@ public class CreateFragment extends Fragment {
     private static final int MAPS_REQUEST_CODE = 40;
     Context context;
     ParseFile parseFile;
+    Category category;
+    AutoCompleteTextView actv;
+    List<String> categoryNames;
+    List<Category> categoryObjects = new ArrayList<>();;
 
     public CreateFragment() {
         // Required empty public constructor
@@ -95,9 +116,20 @@ public class CreateFragment extends Fragment {
         btnUpload = view.findViewById(R.id.ivUpload);
         vvVideoToPost = view.findViewById(R.id.vvVideoToPostChallenge);
         etCaption = view.findViewById(R.id.etCaptionChallenge);
-        etCategory = view.findViewById(R.id.etCategory);
+        //etCategory = view.findViewById(R.id.etCategory);
         btnShare = view.findViewById(R.id.btnPostChallenge);
         btnAddLocation = view.findViewById(R.id.btnAddLocation);
+        actv = view.findViewById(R.id.autoCompleteTextView);
+
+        categoryNames = queryCategories();
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>
+                (getActivity(), android.R.layout.select_dialog_item, categoryNames);
+
+        //Getting the instance of AutoCompleteTextView
+        actv.setThreshold(1);//will start working from first character
+        actv.setAdapter(adapter);//setting the adapter data into the AutoCompleteTextView
+        actv.setTextColor(Color.RED);
+
 
         btnTakeVideo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -119,11 +151,19 @@ public class CreateFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 String caption = etCaption.getText().toString();
-                String category = etCategory.getText().toString();
+                String categoryName = actv.getText().toString();
 
-                savePost(ParseUser.getCurrentUser(), caption, category);
+                Log.i("Here: ", String.valueOf(categoryNames.isEmpty()));
+
+                if (categoryNames.contains(categoryName)) {
+                    int index = categoryNames.indexOf(categoryName);
+                    savePostChallenge(ParseUser.getCurrentUser(), caption, categoryObjects.get(index));
+                } else {
+                    savePost(ParseUser.getCurrentUser(), caption, categoryName);
+                }
                 etCaption.setText("");
-                etCategory.setText("");
+               // etCategory.setText("");
+                actv.setText("");
                 vvVideoToPost.setBackgroundResource(0);
             }
         });
@@ -217,9 +257,7 @@ public class CreateFragment extends Fragment {
 
     private void savePost(ParseUser currentUser, String caption, String categoryName) {
         Post post = new Post();
-
         post.setCaption(caption);
-
         Category category = new Category();
         category.setName(categoryName);
         post.setCategory(category);
@@ -227,19 +265,78 @@ public class CreateFragment extends Fragment {
             post.setLocation(location);
         }
         post.setVideo(new ParseFile(mediaFile));
-        //post.setVideo(parseFile);
         post.setUser(currentUser);
 
         post.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
                 if (e != null) {
-                    Log.e(APP_TAG, "Error while saving", e);
+                    Log.e(TAG, "Error while saving", e);
                     Toast.makeText(getContext(), "Error while saving!", Toast.LENGTH_SHORT).show();
                 }
-                Log.i(APP_TAG, "Post save was successful!");
+                Log.i(TAG, "Post save was successful!");
+                if (category.getFirstChallengePost() == null) {
+                    Log.i("Category", category.getName());
+                    Log.i("Is post null: ", String.valueOf(post.getObjectId()));
+                    category.setFirstChallengePost(post);
+                    category.saveInBackground();
+                }
             }
         });
     }
 
+    private void savePostChallenge(ParseUser currentUser, String caption, Category categoryObj) {
+        Post post = new Post();
+        post.setCaption(caption);
+        post.setCategory(categoryObj);
+
+        if (location != null) {
+            post.setLocation(location);
+        }
+
+        post.setVideo(new ParseFile(mediaFile));
+        post.setUser(currentUser);
+
+        post.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Error while saving", e);
+                    Toast.makeText(getContext(), "Error while saving!", Toast.LENGTH_SHORT).show();
+                }
+                Log.i(TAG, "Post save was successful!");
+                if (categoryObj.getFirstChallengePost() == null) {
+                    Log.i("Category", categoryObj.getName());
+                    Log.i("Is post null: ", String.valueOf(post.getObjectId()));
+                    categoryObj.setFirstChallengePost(post);
+                    categoryObj.saveInBackground();
+                }
+            }
+
+        });
+        // if the category's firstChallengePost field is null, then set the firstChallengePost to this post
+
+    }
+
+    private List<String> queryCategories() {
+        List<String> categoryNames = new ArrayList<>();
+        ParseQuery<Category> query = ParseQuery.getQuery(Category.class);
+        query.findInBackground(new FindCallback<Category>() {
+            @Override
+            public void done(List<Category> categories, ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Issue with retrieving categories", e);
+                }
+                for (Category category: categories) {
+                    categoryNames.add(category.getName());
+                    categoryObjects.add(category);
+                }
+            }
+        });
+
+        return categoryNames;
+    }
+
+
 }
+

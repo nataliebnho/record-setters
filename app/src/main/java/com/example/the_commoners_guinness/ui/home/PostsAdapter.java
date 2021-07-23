@@ -107,9 +107,9 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         private boolean timerRunning;
         private long timeLeftInMillis;
         private long timeSincePostMillis;
-        private long votingPeriodMillis = 3300000; // There are 86400000 millis in one day
+        private long votingPeriodMillis = 86400000; // There are 86400000 millis in one day
         private long categoryTimeLeftInMillis;
-        private Long timeSinceFirstChallengeMillis; // If there is no timeSinceFirstChallengemillis, automatically set it to higher than votingPeriod
+        private Long timeSinceFirstChallengeMillis;
 
         public ViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
@@ -123,9 +123,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             tvNumVotes = itemView.findViewById(R.id.tvNumVotes);
             tvCountdown = itemView.findViewById(R.id.tvCountdown);
             tvVotingTimeStatus = itemView.findViewById(R.id.tvVotingTimeLeft);
-          //  lottieVote = itemView.findViewById(R.id.lottieVote);
-          //  lottieVote.setVisibility(View.INVISIBLE);
-
         }
 
         public void bind(Post post) throws ParseException {
@@ -162,39 +159,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             setOnDoubleTap(post);
         }
 
-
-//        private void setCountDownTimer(Post post) throws ParseException {
-//          //  timeSincePostMillis = System.currentTimeMillis() - post.getCreatedAt().getTime();
-//        //    setCategoryVoteStatus(category);
-//
-//            if (!category.getVotingPeriod()) {
-//                tvCountdown.setText("");
-//                tvVotingTimeStatus.setText("The voting period for this category has closed");
-//                ivVote.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        Toast.makeText(context.getApplicationContext(), "The voting period for this category has closed!", Toast.LENGTH_SHORT).show();
-//                    }
-//                });
-//            } else {
-//             //   category.setVotingPeriodTime(timeSincePostMillis);
-//              //  category.saveInBackground();
-//                changeLikeButtons(post);
-//
-//                countDownTimer = new CountDownTimer(category.getVotingPeriodTime(), 1000) {
-//                    @Override
-//                    public void onTick(long millisUntilFinished) {
-//                        category.setVotingPeriodTime(millisUntilFinished);
-//                        updateCountDownText();
-//                    }
-//                    @Override
-//                    public void onFinish() {
-//                        tvCountdown.setText("");
-//                    }
-//                }.start();
-//            }
-//        }
-
         private void setCountDownTimer(Post post) throws ParseException {
             if (category.fetchIfNeeded().getParseObject("firstChallengePost") != null) {
                 Date date = (Date) category.fetchIfNeeded().getParseObject("firstChallengePost").fetchIfNeeded().get("createdAt");
@@ -203,7 +167,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             }
 
             if (timeSinceFirstChallengeMillis == null || timeSinceFirstChallengeMillis > votingPeriodMillis) {
-                category.remove("firstChallengePost");
                 tvCountdown.setText("");
                 tvVotingTimeStatus.setText("The voting period for this category is closed");
                 ivVote.setOnClickListener(new View.OnClickListener() {
@@ -227,31 +190,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                 }.start();
             }
         }
-
-//        private void setCategoryVoteStatus(Category category) throws ParseException {
-//            if (timeSincePostMillis < votingPeriodMillis) {
-//                category.setVotingPeriod(true);
-//                category.setVotingPeriodTime(votingPeriodMillis - timeSincePostMillis);
-//            } else {
-//                if (!category.getVotingPeriod()) {
-//                    category.setVotingPeriod(false);
-//                } else {
-//                    if (category.getVotingPeriodTime() <= 1) {
-//                        category.setVotingPeriod(false);
-//                    }
-//                }
-//            }
-//            category.save();
-//        }
-
-//        private void updateCountDownText() {
-//            int hours   = (int) ((category.getVotingPeriodTime() / (1000*60*60)) % 24);
-//            int minutes = (int) ((category.getVotingPeriodTime() / (1000*60)) % 60);
-//            int seconds = (int) (category.getVotingPeriodTime() / 1000) % 60 ;
-//
-//            String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds);
-//            tvCountdown.setText(timeLeftFormatted);
-//        }
 
         private void updateCountDownText() {
             int hours   = (int) ((timeLeftInMillis / (1000*60*60)) % 24);
