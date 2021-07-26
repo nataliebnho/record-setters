@@ -12,6 +12,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.SearchView;
 
 import com.example.the_commoners_guinness.R;
 import com.example.the_commoners_guinness.models.Category;
@@ -30,6 +32,8 @@ public class AllChallengesFragment extends Fragment {
     RecyclerView rvCategories;
     List<Category> allCategories;
     protected ChallengesAdapter adapter;
+    SearchView actionSearch;
+    List<Category> categoriesFull;
 
     public AllChallengesFragment() {
         // Required empty public constructor
@@ -53,14 +57,29 @@ public class AllChallengesFragment extends Fragment {
 
         rvCategories = view.findViewById(R.id.rvChallengeType);
         allCategories = new ArrayList<>();
+        categoriesFull = new ArrayList<>();
+        actionSearch = view.findViewById(R.id.action_search);
 
         setRVAdapter();
         queryCategories();
 
+        actionSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                adapter.getFilter().filter(newText);
+                return false;
+            }
+        });
+
     }
 
     private void setRVAdapter() {
-        adapter = new ChallengesAdapter(getContext(), allCategories);
+        adapter = new ChallengesAdapter(getContext(), allCategories, categoriesFull);
         rvCategories.setAdapter(adapter);
         rvCategories.setLayoutManager(new LinearLayoutManager(getContext()));
     }
@@ -77,6 +96,7 @@ public class AllChallengesFragment extends Fragment {
                     Log.e(TAG, "Issue with retrieving posts", e);
                 }
                 allCategories.addAll(categories);
+                categoriesFull.addAll(categories);
                 adapter.notifyDataSetChanged();
             }
         });

@@ -6,6 +6,8 @@ import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
+import org.json.JSONArray;
+
 @ParseClassName("Post")
 public class Post extends ParseObject {
 
@@ -53,5 +55,9 @@ public class Post extends ParseObject {
     public ParseGeoPoint getLocation() { return getParseGeoPoint(KEY_LOCATION); }
 
     public void setLocation(ParseGeoPoint location) { put(KEY_LOCATION, location); }
+
+    public JSONArray getComments() { return getJSONArray("comments"); }
+
+    public void setComments(String comment) { add("comments", comment);}
 
 }

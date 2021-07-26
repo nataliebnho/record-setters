@@ -5,6 +5,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -20,30 +22,36 @@ import com.parse.ParseQuery;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.ViewHolder>{
+public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.ViewHolder> implements Filterable {
 
 
     private static final String TAG = "ChallengesAdapter";
     private Context context;
     private List<Category> categories;
+    private List<Category> categoryFull;
 
-    public ChallengesAdapter(Context context,List<Category> categories) {
+    public ChallengesAdapter(Context context, List<Category> categories, List<Category> categoryFull) {
         this.context = context;
         this.categories = categories;
+        this.categoryFull = categoryFull;
     }
 
     @NonNull
     @NotNull
     @Override
     public ChallengesAdapter.ViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
+        Log.i(TAG, String.valueOf(categoryFull.isEmpty()));
         View view = LayoutInflater.from(context).inflate(R.layout.expandable_rv, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull @NotNull ChallengesAdapter.ViewHolder holder, int position) {
+        Log.i(TAG, String.valueOf(categoryFull.isEmpty()));
         Category category = categories.get(position);
         try {
             holder.bind(category);
@@ -59,6 +67,41 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.Vi
         return categories.size();
     }
 
+    @Override
+    public Filter getFilter() {
+        return filter;
+    }
+
+    private Filter filter = new Filter() {
+
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            List<Category> filteredList = new ArrayList<>();
+
+            if (constraint.toString().isEmpty()) {
+                Log.i(TAG, "constraint is null");
+                filteredList.addAll(categoryFull);
+            } else {
+                String filterPattern = constraint.toString().toLowerCase().trim();
+                for (Category category : categoryFull) {
+                    if (category.getName().toLowerCase().contains(filterPattern)) {
+                        filteredList.add(category);
+                    }
+                }
+            }
+            FilterResults results = new FilterResults();
+            results.values = filteredList;
+            return results;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            categories.clear();
+            categories.addAll((List) results.values);
+            notifyDataSetChanged();
+        }
+    };
+
     class ViewHolder extends RecyclerView.ViewHolder {
         Post[] leaderboard = new Post[3];
         TextView tvCategoryNameCV;
@@ -66,10 +109,9 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.Vi
         TextView tvUsernameFirstCV;
         TextView tvUsernameSecondCV;
         TextView tvUsernameThirdCV;
-        Category categoryT;
+        Category categoryObj;
         int numLeaderboard;
         RelativeLayout rlExpandable;
-        private boolean expanded = false;
 
         public ViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
@@ -77,7 +119,8 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.Vi
         }
 
         public void bind(Category category) throws ParseException, com.parse.ParseException {
-            categoryT = category;
+            Log.i(TAG, String.valueOf(categoryFull.isEmpty()));
+            categoryObj = category;
             tvCategoryNameCV.setText(category.getName());
             queryCategoryPosts();
             tvCategoryNameCV.setClickable(true);
@@ -98,7 +141,7 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.Vi
             query.include(Post.KEY_USER);
             query.setLimit(20);
             query.addDescendingOrder("voteCount");
-            query.whereEqualTo(Post.KEY_CATEGORY, categoryT);
+            query.whereEqualTo(Post.KEY_CATEGORY, categoryObj);
             query.findInBackground(new FindCallback<Post>() {
                 @Override
                 public void done(List<Post> posts, com.parse.ParseException e) {
@@ -119,12 +162,10 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.Vi
             numLeaderboard = Math.min(3, posts.size());
             for(int i = 0; i < numLeaderboard; i++) {
                 leaderboard[i] = posts.get(i);
-                Log.i("Leaderboard", i + " : " + posts.get(i).getObjectId());
             }
         }
 
         public void setLeaderboardUsernamesandVotes() throws com.parse.ParseException {
-            Log.i(TAG, String.valueOf(numLeaderboard));
             if (numLeaderboard >= 1) {
                 tvUsernameFirstCV.setText(leaderboard[0].getUser().getUsername());
               //  tvNumVotesFirstCV.setText(String.valueOf(leaderboard[0].get("voteCount")));

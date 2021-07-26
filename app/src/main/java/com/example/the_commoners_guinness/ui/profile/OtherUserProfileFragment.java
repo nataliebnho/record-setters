@@ -1,23 +1,18 @@
 package com.example.the_commoners_guinness.ui.profile;
 
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
+import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
@@ -27,37 +22,40 @@ import com.example.the_commoners_guinness.R;
 import com.example.the_commoners_guinness.ViewPagerAdapter;
 import com.google.android.material.tabs.TabLayout;
 import com.parse.FindCallback;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProfileFragment extends Fragment {
+public class OtherUserProfileFragment extends Fragment {
 
     private static final String TAG = "ProfileFragment";
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 40;
 
     private ImageView ivProfilePicture;
-    private ImageView ivAddProfilePicture;
-    public String photoFileName = "photo.jpg";
-    private File photoFile;
     private TextView tvNumBadges;
     private TextView tvUsername;
+    private ParseUser user;
+    private Button btnFollow;
+    private boolean currentUserFollows;
 
     TabLayout tabLayout;
     ViewPager viewPager;
     Fragment userBadgesFragment;
 
     private ArrayList<Category> categoryWins = new ArrayList<Category>();
-    private ArrayList<String> categoryWinsName = new ArrayList<String>();
 
-    public ProfileFragment() {
+    public OtherUserProfileFragment() {
         // Required empty public constructor
     }
 
@@ -69,91 +67,79 @@ public class ProfileFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-
-
-        return inflater.inflate(R.layout.fragment_profile, container, false);
+        return inflater.inflate(R.layout.fragment_other_user_profile, container, false);
     }
 
+    @SuppressLint("ResourceAsColor")
     @Override
     public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        user = getArguments().getParcelable("user");
+        findViews(view);
+        queryIfCurrentUserFollows(user);
         try {
             queryFetchUserWins(view);
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        findViews(view);
-        ivAddProfilePicture.setOnClickListener(new View.OnClickListener() {
+
+        btnFollow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                launchCamera();
+                // if current user is not following anyone (null) or not following profile's user
+                if (!currentUserFollows) {
+                    Log.i("Follow status: ", "current user does not follow, so add follow");
+                    ParseUser.getCurrentUser().getRelation("following").add(user);
+                    ParseUser.getCurrentUser().saveInBackground();
+                    btnFollow.setBackgroundColor(getResources().getColor(R.color.green));
+                    btnFollow.setText("Following");
+                } else {
+                    Log.i("Follow status: ", "user already follows, so delete follow");
+                    ParseUser.getCurrentUser().getRelation("following").remove(user);
+                    ParseUser.getCurrentUser().saveInBackground();
+                    btnFollow.setBackgroundColor(getResources().getColor(R.color.teal_200));
+                    btnFollow.setText("Follow");
+                }
             }
         });
+
+    }
+
+    private void queryIfCurrentUserFollows(ParseUser otherUser) {
+        ParseRelation relation = ParseUser.getCurrentUser().getRelation("following");
+        ParseQuery<ParseUser> query = relation.getQuery();
+        currentUserFollows = false;
+        query.findInBackground(new FindCallback<ParseUser>() {
+            @Override
+            public void done(List<ParseUser> users, ParseException e) {
+                for (ParseUser user : users) {
+                    if (user.getObjectId().equals(otherUser.getObjectId())) {
+                        Log.i("Found user: ", "true");
+                        currentUserFollows = true;
+                        btnFollow.setBackgroundColor(getResources().getColor(R.color.green));
+                        btnFollow.setText("Following");
+                    }
+                }
+            }
+        });
+
     }
 
     private void findViews(View view) {
         tvUsername = view.findViewById(R.id.tvProfileNameOther);
         ivProfilePicture = view.findViewById(R.id.ivProfilePicOther);
-        ivAddProfilePicture = view.findViewById(R.id.ivAddProfileImage);
         tvNumBadges = view.findViewById(R.id.tvNumBadgesOther);
-        tvUsername.setText(ParseUser.getCurrentUser().getUsername());
-        if (ParseUser.getCurrentUser().get("profilePicture") != null) {
-            String profilePicture = ParseUser.getCurrentUser().getParseFile("profilePicture").getUrl();
+        tvUsername.setText(user.getUsername());
+        btnFollow = view.findViewById(R.id.btnFollow);
+        if (user.get("profilePicture") != null) {
+            String profilePicture = user.getParseFile("profilePicture").getUrl();
             Glide.with(getContext()).load(profilePicture).into(ivProfilePicture);
         }
     }
 
-    private void launchCamera() {
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        photoFile = getPhotoFileUri(photoFileName);
-        Uri fileProvider = FileProvider.getUriForFile(getContext(), "com.codepath.fileprovider.the-commoners-guinness", photoFile);
-        Log.i(TAG, "This is the fileProvider: " + fileProvider.toString());
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider);
-        if (intent.resolveActivity(getContext().getPackageManager()) != null) {
-            startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
-        }
-    }
-
-
-    private File getPhotoFileUri(String photoFileName) {
-        File mediaStorageDir = new File(getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES), TAG);
-
-        if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
-            Log.d(TAG, "failed to create directory");
-        }
-
-        File file = new File(mediaStorageDir.getPath() + File.separator + photoFileName);
-
-        Log.i(TAG, "This is the file: " + file.toString());
-
-        return new File(mediaStorageDir.getPath() + File.separator + photoFileName);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable @org.jetbrains.annotations.Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
-            if (resultCode == getActivity().RESULT_OK) {
-                Bitmap takenImage = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
-                Log.i("Absolute path", photoFile.getAbsolutePath());
-                ivProfilePicture.setImageBitmap(takenImage);
-                saveProfilePicture(photoFile);
-            } else { // Result was a failure
-                Toast.makeText(getContext(), "Picture wasn't taken!", Toast.LENGTH_SHORT).show();
-            }
-        }
-
-    }
-
-    private void saveProfilePicture(File photoFile) {
-        ParseFile parseFile = new ParseFile(photoFile);
-        ParseUser.getCurrentUser().put("profilePicture", parseFile);
-        ParseUser.getCurrentUser().saveInBackground();
-    }
-
     private void queryFetchUserWins(View view) throws ParseException {
         ParseQuery<Category> query = ParseQuery.getQuery(Category.class);
-        query.whereEqualTo(Category.KEY_WINNERUSER, ParseUser.getCurrentUser());
+        query.whereEqualTo(Category.KEY_WINNERUSER, user);
         query.findInBackground(new FindCallback<Category>() {
             @Override
             public void done(List<Category> categories, ParseException e) {

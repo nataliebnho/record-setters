@@ -6,6 +6,10 @@ import com.parse.ParseClassName;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 //@Parcel (analyze = Category.class)
 @ParseClassName("Category")
 public class Category extends ParseObject {
@@ -16,6 +20,43 @@ public class Category extends ParseObject {
     public static final String KEY_VOTINGPERIOD = "votingPeriod";
     public static final String KEY_VOTINGPERIODTIME = "votingPeriodTime";
     public static final String KEY_FIRSTCHALLENGEPOST = "firstChallengePost";
+    public static final String KEY_USERSVOTED = "usersVoted";
+
+    public boolean hasVoted(ParseUser user) {
+        if(getUsersVoted() != null) {
+            JSONArray usersVoted = getUsersVoted();
+
+            for(int i = 0; i < usersVoted.length(); i++) {
+                String userPointer = null;
+                try {
+                    userPointer = usersVoted.getString(i);
+                    if (userPointer.equals(user.getObjectId())) {
+                        return true;
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return false;
+    }
+
+    public void removeVote(ParseUser currentUser) throws JSONException {
+        JSONArray userVoted = getUsersVoted();
+
+        if (userVoted == null)
+            userVoted = new JSONArray();
+
+        for (int i  = 0; i < userVoted.length(); i++) {
+            String userPointer = userVoted.getString(i);
+            if (userPointer.equals(currentUser.getObjectId())){
+                userVoted.remove(i);
+            }
+        }
+        put(KEY_USERSVOTED, userVoted);
+    }
+
+
 
     public Category() {
     }
@@ -47,6 +88,11 @@ public class Category extends ParseObject {
     public ParseObject getFirstChallengePost() { return getParseObject(KEY_FIRSTCHALLENGEPOST); }
 
     public void setFirstChallengePost(Post post) { put(KEY_FIRSTCHALLENGEPOST, post); }
+
+    public JSONArray getUsersVoted() { return getJSONArray("usersVoted"); }
+
+    public void setUsersVoted( String userID ) { addUnique("usersVoted", userID); }
+
 
     @Override
     public boolean equals(@Nullable @org.jetbrains.annotations.Nullable Object obj) {

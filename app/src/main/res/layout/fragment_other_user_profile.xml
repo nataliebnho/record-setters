@@ -22,7 +22,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/ivProfilePicOther"
-        android:layout_centerHorizontal="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="130dp"
         android:layout_marginTop="15dp"
         android:text="TextView" />
 
@@ -34,17 +35,6 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
         android:text="TextView" />
-
-    <ImageView
-        android:id="@+id/ivAddProfileImage"
-        android:layout_width="45dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="86dp"
-        android:layout_marginEnd="143dp"
-        android:backgroundTint="#2196F3"
-        android:src="@android:drawable/btn_plus" />
 
     <TextView
         android:id="@+id/tvNumPostsOther"
@@ -107,6 +97,18 @@
         android:layout_marginEnd="50dp"
         android:text="Followers" />
 
+    <Button
+        android:id="@+id/btnFollow"
+        android:layout_width="85dp"
+        android:layout_height="30dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="131dp"
+        android:layout_marginEnd="118dp"
+        android:backgroundTint="#00BCD4"
+        android:text="Follow"
+        android:textSize="10sp" />
+
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -140,5 +142,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/tvBadgesOther"
         app:layout_behavior = "com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"/>
+
 
 </RelativeLayout>

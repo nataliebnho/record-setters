@@ -85,7 +85,7 @@ public class LeaderboardFragment extends Fragment {
 
     private void setRecyclerView() {
         categoryPosts = new ArrayList<>();
-        adapter = new PostsAdapter(getContext(), categoryPosts);
+        adapter = new PostsAdapter(getActivity(), categoryPosts);
         rvCategoryPosts.setAdapter(adapter);
         rvCategoryPosts.setLayoutManager(new LinearLayoutManager(getContext()));
     }

@@ -80,7 +80,7 @@ public class HomeFragment extends Fragment {
     private void configureRecyclerView(View view) {
         rvPosts = view.findViewById(R.id.rvPosts);
         allPosts = new ArrayList<>();
-        adapter = new PostsAdapter(getContext(), allPosts);
+        adapter = new PostsAdapter(getActivity(), allPosts);
         rvPosts.setAdapter(adapter);
         rvPosts.setLayoutManager(new LinearLayoutManager(getContext()));
     }
@@ -118,6 +118,7 @@ public class HomeFragment extends Fragment {
                 if (e != null) {
                     Log.e(TAG, "Issue with retrieving posts", e);
                 }
+
                 allPosts.addAll(posts);
                 adapter.notifyDataSetChanged();
             }

@@ -1,29 +1,50 @@
 package com.example.the_commoners_guinness.ui.home;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Point;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.the_commoners_guinness.MainActivity;
 import com.example.the_commoners_guinness.models.Category;
 import com.example.the_commoners_guinness.ChallengeActivity;
 import com.example.the_commoners_guinness.models.Post;
 import com.example.the_commoners_guinness.R;
+import com.example.the_commoners_guinness.ui.profile.OtherUserProfileFragment;
+import com.example.the_commoners_guinness.ui.profile.ProfileFragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.parse.FindCallback;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
@@ -32,8 +53,13 @@ import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.parceler.Parcels;
 
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -42,12 +68,13 @@ import java.util.Locale;
 public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
 
     private static final String TAG = "POSTSADAPTER";
-    private Context context;
+    private FragmentActivity c;
     private List<Post> posts;
+    private Activity activity;
 
 
-    public PostsAdapter(Context context, List<Post> posts) {
-        this.context = context;
+    public PostsAdapter(FragmentActivity c, List<Post> posts) {
+        this.c = c;
         this.posts = posts;
 
     }
@@ -56,7 +83,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
     @NotNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_view, parent, false);
+        View view = LayoutInflater.from(c).inflate(R.layout.item_view, parent, false);
         return new ViewHolder(view);
     }
 
@@ -85,9 +112,13 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         private ImageView ivChallenge;
         private ImageView ivVote;
         private TextView tvNumVotes;
-        private int currentSize;
+        private ImageView ivLike;
+        private int currentLikeSize;
+        private int currentVoteSize;
         private Category category;
         private TextView tvVotingTimeStatus;
+        private TextView tvNumLikes;
+        private ImageView ivComment;
 
         private TextView tvCountdown;
         private CountDownTimer countDownTimer;
@@ -107,6 +138,9 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             tvNumVotes = itemView.findViewById(R.id.tvNumVotes);
             tvCountdown = itemView.findViewById(R.id.tvCountdown);
             tvVotingTimeStatus = itemView.findViewById(R.id.tvVotingTimeLeft);
+            ivLike = itemView.findViewById(R.id.ivLike);
+            tvNumLikes = itemView.findViewById(R.id.tvNumLikes);
+            ivComment = itemView.findViewById(R.id.ivComment);
         }
 
         public void bind(Post post) throws ParseException {
@@ -120,15 +154,53 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                 public void onClick(View v) {
                     Intent i = new Intent(itemView.getContext(), ChallengeActivity.class);
                     i.putExtra("Category", Parcels.wrap(category));
-                    context.startActivity(i);
+                    c.startActivity(i);
                 }
             });
 
+            ivComment.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        onShowPopup(v, post);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            setUsernameOnClickListener(post);
             setCountDownTimer(post);
             configureVideoView(post);
-            queryLikesForVoteImage(post, ivVote);
+            queryVotesForVoteImage(post, ivVote);
             queryVotesForNumVotes(post);
             setOnDoubleTap(post);
+
+            queryLikesForNumLikes(post);
+            queryLikesForHeartImage(post, ivLike);
+            changeLikeButtons(post);
+        }
+
+        private void setUsernameOnClickListener(Post post) {
+            tvUsername.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    FragmentManager fragmentManager = c.getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    if (!post.getUser().getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
+                        Fragment fragment = new OtherUserProfileFragment();
+                        Bundle bundle = new Bundle();
+                        bundle.putParcelable("user", post.getUser());
+                        fragment.setArguments(bundle);
+                        fragmentTransaction.replace(R.id.nav_host_fragment_activity_main, fragment);
+                        fragmentTransaction.addToBackStack(null);
+                        fragmentTransaction.commit();
+                    } else {
+                        ((BottomNavigationView)c.findViewById(R.id.nav_view)).setSelectedItemId(R.id.navigation_profile);
+                    }
+
+                }
+            });
         }
 
         private void configureVideoView(Post post) {
@@ -159,7 +231,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         }
 
         private void votingPeriodOpenLogic(Post post) {
-            changeLikeButtons(post);
+            changeVoteButtons(post);
             countDownTimer = new CountDownTimer(timeLeftInMillis, 1000) {
                 @Override
                 public void onTick(long millisUntilFinished) {
@@ -181,7 +253,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             ivVote.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(context.getApplicationContext(), "The voting period for this category is closed!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(c.getApplicationContext(), "The voting period for this category is closed!", Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -203,12 +275,12 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                     public boolean onDoubleTap(MotionEvent e) {
                         if (timeSinceFirstChallengeMillis != null) {
                             try {
-                                setLikeButtons(post);
-                            } catch (ParseException parseException) {
+                                setVoteButtons(post);
+                            } catch (ParseException | JSONException parseException) {
                                 parseException.printStackTrace();
                             }
                         } else {
-                            Toast.makeText(context.getApplicationContext(), "The voting period for this category has closed!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(c.getApplicationContext(), "The voting period for this category has closed!", Toast.LENGTH_SHORT).show();
                         }
                         return super.onDoubleTap(e);
                     }
@@ -221,13 +293,29 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             });
         }
 
-        private void changeLikeButtons(Post post) {
+        private void changeVoteButtons(Post post) {
             ivVote.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         try {
-                            setLikeButtons(post);
-                        } catch (ParseException e) {
+                            if (post.getCategory().hasVoted(ParseUser.getCurrentUser())) {
+                                if (ivVote.isSelected()) {
+                                    Log.i("category status: ", "user has voted in this category, and is unliking that post");
+                                    deleteVote(post);
+                                    ivVote.setImageResource(R.drawable.vote_empty);
+                                    ivVote.setSelected(false);
+                                    tvNumVotes.setText("" + (currentVoteSize - 1));
+                                    currentVoteSize -= 1;
+                                    queryForUpdateWinner(category);
+                                } else {
+                                    Log.i("category status: ", "user has voted in this category, and is trying to like another post");
+                                    Toast.makeText(c.getApplicationContext(), "You can only vote for one post per category", Toast.LENGTH_SHORT).show();
+                                }
+                            } else {
+                                Log.i("category status: ", "user has not voted in this category");
+                                setVoteButtons(post);
+                            }
+                        } catch (ParseException | JSONException e) {
                             e.printStackTrace();
                             Log.e(TAG, "post was not liked");
                         }
@@ -235,20 +323,20 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                 });
         }
 
-        private void setLikeButtons(Post post) throws ParseException {
+        private void setVoteButtons(Post post) throws ParseException, JSONException {
             if (ivVote.isSelected()) {
                 deleteVote(post);
                 ivVote.setImageResource(R.drawable.vote_empty);
                 ivVote.setSelected(false);
-                tvNumVotes.setText("" + (currentSize - 1));
-                currentSize -= 1;
+                tvNumVotes.setText("" + (currentVoteSize - 1));
+                currentVoteSize -= 1;
                 queryForUpdateWinner(category);
             } else {
                 postVote(post);
                 ivVote.setImageResource(R.drawable.vote);
                 ivVote.setSelected(true);
-                tvNumVotes.setText("" + (currentSize + 1));
-                currentSize += 1;
+                tvNumVotes.setText("" + (currentVoteSize + 1));
+                currentVoteSize += 1;
                 queryForUpdateWinner(category);
             }
         }
@@ -260,16 +348,110 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                 public void done(List<ParseUser> objects, ParseException e) {
                     if (e == null) {
                         tvNumVotes.setText(String.valueOf(objects.size()));
-                        currentSize = objects.size();
+                        currentVoteSize = objects.size();
                     }
                 }
             });
         }
 
+        private void changeLikeButtons(Post post) {
+            ivLike.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        if (ivLike.isSelected()) {
+                            deleteLikes(post);
+                            ivLike.setImageResource(R.drawable.ufi_heart);
+                            ivLike.setSelected(false);
+                            tvNumLikes.setText("" + (currentLikeSize - 1));
+                            currentLikeSize -= 1;
+                        } else {
+                            postLikes(post);
+                            ivLike.setImageResource(R.drawable.ufi_heart_active);
+                            ivLike.setSelected(true);
+                            tvNumLikes.setText("" + (currentLikeSize + 1));
+                            currentLikeSize += 1;
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                        Log.e(TAG, "post was not liked");
+                    }
+                }
+            });
+        }
+
+        private void queryLikesForNumLikes(Post post) {
+            ParseQuery simpleQuery = post.getRelation("like").getQuery();
+            simpleQuery.findInBackground(new FindCallback<ParseUser>() {
+                @Override
+                public void done(List<ParseUser> objects, ParseException e) {
+                    if (e == null) {
+                        tvNumLikes.setText("" + objects.size());
+                        currentLikeSize = objects.size();
+                    }
+                }
+            });
+        }
+
+        // call this method when required to show popup
+        public void onShowPopup(View v, Post post) throws JSONException {
+            LayoutInflater layoutInflater = (LayoutInflater)c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View inflatedView = layoutInflater.inflate(R.layout.comment_popup_layout, null, false);
+            ListView listView = inflatedView.findViewById(R.id.commentsListView);
+            LinearLayout headerView = (LinearLayout)inflatedView.findViewById(R.id.headerLayout);
+            Display display = c.getWindowManager().getDefaultDisplay();
+            final Point size = new Point();
+            display.getSize(size);
+            DisplayMetrics displayMetrics = c.getResources().getDisplayMetrics();
+            int width = displayMetrics.widthPixels;
+            int height = displayMetrics.heightPixels;
+            PopupWindow popWindow = new PopupWindow(inflatedView, width, height - 200, true);
+            popWindow.setBackgroundDrawable(c.getResources().getDrawable(R.drawable.plainwhitebackground));
+
+            popWindow.setInputMethodMode(PopupWindow.INPUT_METHOD_NEEDED);
+            popWindow.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
+
+            ArrayList<String> commentsList = new ArrayList<String>();
+            ImageView postComment = inflatedView.findViewById(R.id.postComment);
+            EditText etWriteComment = inflatedView.findViewById(R.id.writeComment);
+
+            postComment.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String comment = etWriteComment.getText().toString();
+                    try {
+                        postComment(post, comment);
+                        Log.i("Comment post success: ", comment);
+                        etWriteComment.setText("");
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            setSimpleList(listView, post, commentsList);
+            popWindow.setAnimationStyle(R.style.PopupAnimation);
+            popWindow.showAtLocation(v, Gravity.BOTTOM, 0,100);
+        }
+
+        private void setSimpleList(ListView listView, Post post, ArrayList<String> commentsList) throws JSONException {
+            JSONArray comments = post.getComments();
+
+            if (comments == null || comments.length() == 0) {
+                commentsList.add("Be the first to comment!");
+            } else {
+                for (int i = 0; i < comments.length(); i ++) {
+                    commentsList.add((String) comments.get(i));
+                }
+            }
+
+            listView.setAdapter(new ArrayAdapter<String>(c, android.R.layout.simple_list_item_1, commentsList));
+        }
+
     }
 
-    private void queryLikesForVoteImage(Post post, ImageView ivVotes) {
-        ParseQuery query = post.getRelation("vote").getQuery().whereContains("objectId", ParseUser.getCurrentUser().getObjectId());
+    private void queryVotesForVoteImage(Post post, ImageView ivVotes) {
+        ParseQuery query = post.getRelation("vote").getQuery().
+                whereContains("objectId", ParseUser.getCurrentUser().getObjectId());
         query.findInBackground(new FindCallback<ParseUser>() {
             @Override
             public void done(List<ParseUser> objects, ParseException e) {
@@ -314,13 +496,21 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         ParseRelation<ParseObject> relation = post.getRelation("vote");
         relation.add(ParseUser.getCurrentUser());
         post.setVoteCount(post.getVoteCount() + 1);
+        post.getCategory().setUsersVoted(ParseUser.getCurrentUser().getObjectId());
         post.save();
+        post.getCategory().save();
+
     }
 
-    private void deleteVote(Post post) throws ParseException {
+    private void deleteVote(Post post) throws ParseException, JSONException {
         ParseRelation<ParseObject> relation = post.getRelation("vote");
         relation.remove(ParseUser.getCurrentUser());
         post.setVoteCount(post.getVoteCount() - 1);
+
+        if (post.getCategory().hasVoted(ParseUser.getCurrentUser())){
+            post.getCategory().removeVote(ParseUser.getCurrentUser());
+            post.getCategory().save();
+        }
         post.save();
     }
 
@@ -334,4 +524,79 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         posts.addAll(list);
         notifyDataSetChanged();
     }
+
+    private void queryLikesForHeartImage(Post post, ImageView ivLikes) {
+        ParseQuery query = post.getRelation("like").getQuery().whereContains("objectId", ParseUser.getCurrentUser().getObjectId());
+        query.findInBackground(new FindCallback<ParseUser>() {
+            @Override
+            public void done(List<ParseUser> objects, ParseException e) {
+                if (e == null) {
+                    if (objects.size() == 0) {
+                        //do not like
+                        ivLikes.setImageResource(R.drawable.ufi_heart);
+                        ivLikes.setSelected(false);
+                    } else {
+                        // display that it is liked
+                        ivLikes.setImageResource(R.drawable.ufi_heart_active);
+                        ivLikes.setSelected(true);
+                    }
+                }
+            }
+        });
+    }
+
+    private void postLikes(Post post) throws ParseException {
+        ParseRelation<ParseObject> relation = post.getRelation("like");
+        relation.add(ParseUser.getCurrentUser());
+        post.save();
+    }
+
+    private void deleteLikes(Post post) throws ParseException {
+        ParseRelation<ParseObject> relation = post.getRelation("like");
+        relation.remove(ParseUser.getCurrentUser());
+        post.save();
+    }
+
+    private void postComment(Post post, String comment) throws ParseException {
+        post.setComments(comment);
+        post.save();
+    }
+
+
+    public static String calculateTimeAgo(Date createdAt) {
+
+        int SECOND_MILLIS = 1000;
+        int MINUTE_MILLIS = 60 * SECOND_MILLIS; // 60000
+        int HOUR_MILLIS = 60 * MINUTE_MILLIS; //
+        int DAY_MILLIS = 24 * HOUR_MILLIS;
+
+        try {
+            createdAt.getTime();
+            long time = createdAt.getTime();
+            long now = System.currentTimeMillis();
+
+            final long diff = now - time;
+            if (diff < MINUTE_MILLIS) {
+                return "just now";
+            } else if (diff < 2 * MINUTE_MILLIS) {
+                return "a minute ago";
+            } else if (diff < 50 * MINUTE_MILLIS) {
+                return diff / MINUTE_MILLIS + " m";
+            } else if (diff < 90 * MINUTE_MILLIS) {
+                return "an hour ago";
+            } else if (diff < 24 * HOUR_MILLIS) {
+                return diff / HOUR_MILLIS + " h";
+            } else if (diff < 48 * HOUR_MILLIS) {
+                return "yesterday";
+            } else {
+                return diff / DAY_MILLIS + " d";
+            }
+        } catch (Exception e) {
+            Log.i("Error:", "getRelativeTimeAgo failed", e);
+            e.printStackTrace();
+        }
+
+        return "";
+    }
+
 }
