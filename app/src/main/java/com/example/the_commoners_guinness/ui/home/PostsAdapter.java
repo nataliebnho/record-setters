@@ -3,11 +3,15 @@ package com.example.the_commoners_guinness.ui.home;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaPlayer;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -119,7 +123,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         private TextView tvVotingTimeStatus;
         private TextView tvNumLikes;
         private ImageView ivComment;
-
         private TextView tvCountdown;
         private CountDownTimer countDownTimer;
         private long timeLeftInMillis;
@@ -128,20 +131,10 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
 
         public ViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
-
-            tvCaption = itemView.findViewById(R.id.tvCaption);
-            tvCategory = itemView.findViewById(R.id.tvCategory);
-            tvUsername = itemView.findViewById(R.id.tvUsername);
-            vvPostVideo = itemView.findViewById(R.id.vvPostVideo);
-            ivChallenge = itemView.findViewById(R.id.ivChallenge);
-            ivVote = itemView.findViewById(R.id.ivVote);
-            tvNumVotes = itemView.findViewById(R.id.tvNumVotes);
-            tvCountdown = itemView.findViewById(R.id.tvCountdown);
-            tvVotingTimeStatus = itemView.findViewById(R.id.tvVotingTimeLeft);
-            ivLike = itemView.findViewById(R.id.ivLike);
-            tvNumLikes = itemView.findViewById(R.id.tvNumLikes);
-            ivComment = itemView.findViewById(R.id.ivComment);
+            findViews();
         }
+
+
 
         public void bind(Post post) throws ParseException {
             tvUsername.setText(post.getUser().getUsername());
@@ -205,6 +198,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
 
         private void configureVideoView(Post post) {
             ParseFile file = post.getVideo();
+
             vvPostVideo.setVideoURI(Uri.parse(file.getUrl()));
             vvPostVideo.requestFocus();
             vvPostVideo.start();
@@ -214,6 +208,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                     vvPostVideo.start();
                 }
             });
+
+
         }
 
         private void setCountDownTimer(Post post) throws ParseException {
@@ -445,6 +441,21 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             }
 
             listView.setAdapter(new ArrayAdapter<String>(c, android.R.layout.simple_list_item_1, commentsList));
+        }
+
+        private void findViews() {
+            tvCaption = itemView.findViewById(R.id.tvCaption);
+            tvCategory = itemView.findViewById(R.id.tvCategory);
+            tvUsername = itemView.findViewById(R.id.tvUsername);
+            vvPostVideo = itemView.findViewById(R.id.vvPostVideo);
+            ivChallenge = itemView.findViewById(R.id.ivChallenge);
+            ivVote = itemView.findViewById(R.id.ivVote);
+            tvNumVotes = itemView.findViewById(R.id.tvNumVotes);
+            tvCountdown = itemView.findViewById(R.id.tvCountdown);
+            tvVotingTimeStatus = itemView.findViewById(R.id.tvVotingTimeLeft);
+            ivLike = itemView.findViewById(R.id.ivLike);
+            tvNumLikes = itemView.findViewById(R.id.tvNumLikes);
+            ivComment = itemView.findViewById(R.id.ivComment);
         }
 
     }

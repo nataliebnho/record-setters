@@ -61,6 +61,8 @@ dependencies {
     implementation 'org.parceler:parceler-api:1.1.12'
     annotationProcessor 'org.parceler:parceler:1.1.12'
     implementation "androidx.viewpager2:viewpager2:1.0.0"
+    implementation 'com.github.beksomega:loopinglayout:0.3.1'
+    implementation 'com.mig35:carousellayoutmanager:1.4.6'
 
     def lottieVersion = "3.7.2"
     implementation "com.airbnb.android:lottie:$lottieVersion"
