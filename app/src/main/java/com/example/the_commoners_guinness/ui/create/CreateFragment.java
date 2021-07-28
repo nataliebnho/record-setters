@@ -64,7 +64,7 @@ public class CreateFragment extends Fragment {
     AutoCompleteTextView actvCategory;
     List<String> categoryNames;
     List<Category> categoryObjects = new ArrayList<>();
-    long votingPeriodMillis = 480000;
+    long votingPeriodMillis = 84000000;
 
     private static final int VIDEO_CAPTURE = 101;
     public static final int VIDEO_UPLOAD = 102;
