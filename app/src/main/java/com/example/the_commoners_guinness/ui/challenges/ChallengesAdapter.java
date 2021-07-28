@@ -1,18 +1,23 @@
 package com.example.the_commoners_guinness.ui.challenges;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.the_commoners_guinness.ChallengeActivity;
 import com.example.the_commoners_guinness.R;
 import com.example.the_commoners_guinness.models.Category;
 import com.example.the_commoners_guinness.models.Post;
@@ -20,11 +25,14 @@ import com.parse.FindCallback;
 import com.parse.ParseQuery;
 
 import org.jetbrains.annotations.NotNull;
+import org.parceler.Parcels;
 
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.ViewHolder> implements Filterable {
 
@@ -44,15 +52,14 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.Vi
     @NotNull
     @Override
     public ChallengesAdapter.ViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
-        Log.i(TAG, String.valueOf(categoryFull.isEmpty()));
         View view = LayoutInflater.from(context).inflate(R.layout.expandable_rv, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull @NotNull ChallengesAdapter.ViewHolder holder, int position) {
-        Log.i(TAG, String.valueOf(categoryFull.isEmpty()));
         Category category = categories.get(position);
+        holder.setIsRecyclable(false);
         try {
             holder.bind(category);
         } catch (ParseException e) {
@@ -110,8 +117,13 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.Vi
         TextView tvUsernameSecondCV;
         TextView tvUsernameThirdCV;
         Category categoryObj;
+        ImageView ivChallengeFromView;
         int numLeaderboard;
         RelativeLayout rlExpandable;
+        private CountDownTimer countDownTimer;
+        private long timeLeftInMillis;
+        private long votingPeriodMillis = 86400000; // There are 86400000 millis in one day
+        private Long timeSinceFirstChallengeMillis;
 
         public ViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
@@ -123,18 +135,50 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.Vi
             categoryObj = category;
             tvCategoryNameCV.setText(category.getName());
             queryCategoryPosts();
-            tvCategoryNameCV.setClickable(true);
-            tvCategoryNameCV.setOnClickListener(new View.OnClickListener() {
+            setCountDownTimer(category);
+
+            ivChallengeFromView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (rlExpandable.getVisibility() == (View.GONE)) {
-                        rlExpandable.setVisibility(View.VISIBLE);
-                    } else {
-                        rlExpandable.setVisibility(View.GONE);
-                    }
+                    Intent i = new Intent(itemView.getContext(), ChallengeActivity.class);
+                    Bundle bundle = new Bundle();
+                    i.putExtra("Category", Parcels.wrap(category));
+                    context.startActivity(i);
                 }
             });
         }
+
+        private void setCountDownTimer(Category category) throws com.parse.ParseException {
+            Date date = (Date) category.fetchIfNeeded().getParseObject("firstChallengePost").fetchIfNeeded().get("createdAt");
+            long timeSinceFirstChallengeMillis = System.currentTimeMillis() - (category.getFirstChallengePost().getCreatedAt()).getTime();
+            timeLeftInMillis = votingPeriodMillis - timeSinceFirstChallengeMillis;
+
+            countDownTimer = new CountDownTimer(timeLeftInMillis, 1000) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    timeLeftInMillis = millisUntilFinished;
+                    updateCountDownText();
+                }
+
+                @Override
+                public void onFinish() {
+                    tvCountdownView.setText("The voting period for this category is closed");
+                }
+            }.start();
+
+        }
+
+        private void updateCountDownText() {
+            int hours   = (int) ((timeLeftInMillis / (1000*60*60)) % 24);
+            int minutes = (int) ((timeLeftInMillis / (1000*60)) % 60);
+            int seconds = (int) (timeLeftInMillis / 1000) % 60 ;
+
+            String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds);
+            tvCountdownView.setText(timeLeftFormatted);
+        }
+
+
+
 
         public void queryCategoryPosts() {
             ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
@@ -189,7 +233,8 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.Vi
             tvUsernameSecondCV = itemView.findViewById(R.id.tvUsernameSecondCV);
             tvUsernameThirdCV = itemView.findViewById(R.id.tvUsernameThirdCV);
             rlExpandable = itemView.findViewById(R.id.rlExpandable);
-            rlExpandable.setVisibility(View.GONE);
+            ivChallengeFromView = itemView.findViewById(R.id.ivChallengeFromView);
+            //rlExpandable.setVisibility(View.GONE);
 
         }
 

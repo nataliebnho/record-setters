@@ -2,12 +2,11 @@ package com.example.the_commoners_guinness;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.example.the_commoners_guinness.ui.challenges.AllChallengesFragment;
+import com.example.the_commoners_guinness.ui.challenges.DiscoverFragment;
 import com.example.the_commoners_guinness.ui.create.CreateFragment;
 import com.example.the_commoners_guinness.ui.home.HomeFragment;
 import com.example.the_commoners_guinness.ui.profile.ProfileFragment;
@@ -17,13 +16,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
 
 import com.example.the_commoners_guinness.databinding.ActivityMainBinding;
-import com.parse.ParseObject;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -76,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
                         fragment = new ProfileFragment();
                         break;
                     case R.id.navigation_viewChallenges:
-                        fragment = new AllChallengesFragment();
+                        fragment = new DiscoverFragment();
                         break;
                     case R.id.navigation_home:
                     default:

@@ -12,10 +12,13 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginStart="6dp"
+        android:layout_marginStart="35dp"
         android:layout_marginTop="14dp"
-        android:layout_marginEnd="3dp"
-        android:elevation="10dp">
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="35dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="8dp"
+        >
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -34,17 +37,19 @@
             <RelativeLayout
                 android:id="@+id/rlExpandable"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="223dp"
                 android:layout_below="@id/tvCategoryNameCV"
-                android:layout_alignParentEnd="true">
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="0dp">
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cvLeaderboardFirst"
-                    android:layout_width="367dp"
-                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
                     android:layout_below="@id/tvCountdownView"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginEnd="19dp">
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="7dp"
+                    android:layout_marginEnd="10dp">
 
                     <TextView
                         android:id="@+id/tvUsernameFirstCV"
@@ -68,34 +73,80 @@
                         android:id="@+id/imageView4"
                         android:layout_width="25dp"
                         android:layout_height="25dp"
-                        android:layout_marginLeft="320dp"
+                        android:layout_marginLeft="250dp"
                         android:layout_marginTop="8dp"
                         android:src="@drawable/vote" />
 
                     <TextView
                         android:id="@+id/tvNumVotesFirst"
-                        android:layout_width="34dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="350dp"
+                        android:layout_marginLeft="290dp"
                         android:layout_marginTop="12dp"
                         android:text="0" />
 
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
+                    android:id="@+id/cvLeaderboardThird"
+                    android:layout_width="286dp"
+                    android:layout_height="36dp"
+                    android:layout_below="@+id/cvLeaderboardSecond"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginStart="30dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginEnd="30dp">
+
+                    <TextView
+                        android:id="@+id/tvNumVotesThird"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="250dp"
+                        android:layout_marginTop="12dp"
+                        android:text="0" />
+
+                    <ImageView
+                        android:id="@+id/imageView6"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:layout_marginLeft="210dp"
+                        android:layout_marginTop="8dp"
+                        android:src="@drawable/vote" />
+
+                    <TextView
+                        android:id="@+id/tvUsernameThirdCV"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="60dp"
+                        android:layout_marginTop="12dp"
+                        android:text="This could be you..."
+                        android:textSize="12sp"
+                        android:textStyle="italic" />
+
+                    <ImageView
+                        android:id="@+id/imageView3"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_marginLeft="25dp"
+                        android:layout_marginTop="6dp"
+                        android:src="@drawable/bronze" />
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
                     android:id="@+id/cvLeaderboardSecond"
-                    android:layout_width="350dp"
-                    android:layout_height="wrap_content"
+                    android:layout_width="305dp"
+                    android:layout_height="37dp"
                     android:layout_below="@+id/cvLeaderboardFirst"
                     android:layout_alignParentStart="true"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="15dp">
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="14dp"
+                    android:layout_marginEnd="20dp">
 
                     <TextView
                         android:id="@+id/tvNumVotesSecond"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="330dp"
+                        android:layout_marginLeft="270dp"
                         android:layout_marginTop="12dp"
                         android:text="0" />
 
@@ -121,7 +172,7 @@
                         android:id="@+id/imageView5"
                         android:layout_width="25dp"
                         android:layout_height="25dp"
-                        android:layout_marginLeft="300dp"
+                        android:layout_marginLeft="230dp"
                         android:layout_marginTop="8dp"
                         android:src="@drawable/vote" />
                 </androidx.cardview.widget.CardView>
@@ -132,64 +183,21 @@
                     android:layout_height="31dp"
                     android:layout_alignParentTop="true"
                     android:layout_alignParentEnd="true"
-                    android:layout_marginTop="0dp"
-                    android:layout_marginEnd="81dp"
+                    android:layout_marginTop="3dp"
+                    android:layout_marginEnd="22dp"
                     android:text="00:00:00"
                     android:textSize="24sp" />
 
                 <ImageView
                     android:id="@+id/ivChallengeFromView"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="47dp"
+                    android:layout_height="28dp"
                     android:layout_below="@+id/cvLeaderboardThird"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="10dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="147dp"
                     android:layout_marginBottom="10dp"
                     app:srcCompat="@drawable/crown" />
-
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/cvLeaderboardThird"
-                    android:layout_width="333dp"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/cvLeaderboardSecond"
-                    android:layout_alignParentStart="true"
-                    android:layout_marginStart="29dp"
-                    android:layout_marginTop="15dp">
-
-                    <TextView
-                        android:id="@+id/tvNumVotesThird"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="310dp"
-                        android:layout_marginTop="12dp"
-                        android:text="0" />
-
-                    <ImageView
-                        android:id="@+id/imageView6"
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
-                        android:layout_marginLeft="280dp"
-                        android:layout_marginTop="8dp"
-                        android:src="@drawable/vote" />
-
-                    <TextView
-                        android:id="@+id/tvUsernameThirdCV"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="60dp"
-                        android:layout_marginTop="12dp"
-                        android:text="This could be you..."
-                        android:textSize="12sp"
-                        android:textStyle="italic" />
-
-                    <ImageView
-                        android:id="@+id/imageView3"
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:layout_marginLeft="30dp"
-                        android:layout_marginTop="6dp"
-                        android:src="@drawable/bronze" />
-                </androidx.cardview.widget.CardView>
 
                 <TextView
                     android:id="@+id/textView2"

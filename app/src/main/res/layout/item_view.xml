@@ -23,15 +23,17 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="513dp">
 
             <VideoView
-                android:id="@+id/vvPostVideo"
-                android:layout_width="200dp"
-                android:layout_height="200dp"
+                android:id="@+id/vvUserVideo"
+                android:layout_width="210dp"
+                android:layout_height="328dp"
                 android:layout_below="@id/tvCategory"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="15dp"></VideoView>
+                android:layout_marginTop="15dp"
+                android:scaleType="fitXY"></VideoView>
+
 
             <TextView
                 android:id="@+id/tvCategory"
@@ -47,7 +49,7 @@
                 android:id="@+id/tvUsername"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/vvPostVideo"
+                android:layout_below="@id/vvUserVideo"
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="10dp"
                 android:text="TextView"
@@ -57,7 +59,7 @@
                 android:id="@+id/tvCaption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/vvPostVideo"
+                android:layout_below="@id/vvUserVideo"
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="10dp"
                 android:layout_toRightOf="@id/tvUsername"
@@ -79,20 +81,20 @@
                 android:layout_height="33dp"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
-                android:layout_marginTop="53dp"
-                android:layout_marginEnd="29dp"
+                android:layout_marginTop="110dp"
+                android:layout_marginEnd="30dp"
                 app:srcCompat="@drawable/vote_empty" />
 
-            <ImageView
-                android:id="@+id/ivLike"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_below="@id/ivVote"
-                android:layout_alignParentTop="true"
+            <TextView
+                android:id="@+id/tvNumVotes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/ivVote"
                 android:layout_alignParentEnd="true"
-                android:layout_marginTop="124dp"
-                android:layout_marginEnd="38dp"
-                app:srcCompat="@drawable/ufi_heart" />
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="48dp"
+                android:text="TextView"
+                tools:text="1" />
 
             <TextView
                 android:id="@+id/tvNumLikes"
@@ -101,8 +103,18 @@
                 android:layout_below="@id/ivLike"
                 android:layout_alignParentEnd="true"
                 android:layout_marginTop="6dp"
-                android:layout_marginEnd="48dp"
+                android:layout_marginEnd="49dp"
                 android:layout_marginBottom="162dp"
+                android:text="0" />
+
+            <TextView
+                android:id="@+id/tvNumComments"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/ivComment"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="48dp"
                 android:text="0" />
 
             <ImageView
@@ -112,30 +124,20 @@
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="false"
-                android:layout_marginStart="303dp"
-                android:layout_marginTop="192dp"
+                android:layout_marginStart="302dp"
+                android:layout_marginTop="249dp"
                 app:srcCompat="@drawable/ufi_comment" />
 
-            <TextView
-                android:id="@+id/tvNumComments"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/ivComment"
+            <ImageView
+                android:id="@+id/ivLike"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_below="@id/ivVote"
+                android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="47dp"
-                android:text="0" />
-
-            <TextView
-                android:id="@+id/tvNumVotes"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/ivVote"
-                android:layout_alignParentEnd="true"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="47dp"
-                android:text="TextView"
-                tools:text="1" />
+                android:layout_marginTop="181dp"
+                android:layout_marginEnd="40dp"
+                app:srcCompat="@drawable/ufi_heart" />
 
         </RelativeLayout>
 

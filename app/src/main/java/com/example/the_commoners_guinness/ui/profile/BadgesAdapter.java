@@ -1,6 +1,7 @@
 package com.example.the_commoners_guinness.ui.profile;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,6 +44,7 @@ public class BadgesAdapter extends RecyclerView.Adapter<BadgesAdapter.ViewHolder
 
     @Override
     public int getItemCount() {
+        Log.i(TAG, String.valueOf(categories.size()));
         return categories.size();
     }
 

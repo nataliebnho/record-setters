@@ -1,15 +1,15 @@
 package com.example.the_commoners_guinness.ui.profile;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.media.ThumbnailUtils;
-import android.provider.MediaStore;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,6 +18,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.the_commoners_guinness.R;
 import com.example.the_commoners_guinness.models.Post;
+import com.parse.ParseException;
 import com.parse.ParseFile;
 
 import org.jetbrains.annotations.NotNull;
@@ -42,11 +43,6 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.grid_post, parent, false);
-//
-//        int width = rvPosts.getWidth();
-//        ViewGroup.LayoutParams params = view.getLayoutParams();
-//        params.width = (int)(width * 0.75);
-//        view.setLayoutParams(params);
 
         return new ViewHolder(view);
     }
@@ -54,7 +50,11 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull @NotNull ProfileAdapter.ViewHolder holder, int position) {
         Post post = posts.get(position);
-        holder.bind(post);
+        try {
+            holder.bind(post);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -64,21 +64,54 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         private ImageView ivGridPost;
+        private VideoView vvUserVideo;
+        private ImageView ivBtnPlay;
+        private TextView tvCategoryProfile;
+
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             ivGridPost = itemView.findViewById(R.id.ivGridPost);
             itemView.setOnClickListener(this);
+            vvUserVideo = itemView.findViewById(R.id.vvUserVideo);
+            ivBtnPlay = itemView.findViewById(R.id.ivBtnPlay);
+            tvCategoryProfile = itemView.findViewById(R.id.tvCategoryProfile);
         }
 
-        public void bind(Post post) {
-            ParseFile video = post.getVideo(); // TODO - get video thumbnail
-            if (video != null) {
-                Log.i(TAG, video.getUrl());
-                long thumb = getLayoutPosition()*1000;
-                RequestOptions options = new RequestOptions().frame(thumb);
-                Glide.with(itemView.getContext()).load(video.getUrl()).apply(options).into(ivGridPost);
+        public void bind(Post post) throws ParseException {
+            tvCategoryProfile.setText((String) post.getCategory().fetchIfNeeded().get("name"));
+
+            ParseFile videoFile = post.getVideo();
+            vvUserVideo.setVisibility(View.INVISIBLE);
+            vvUserVideo.setVideoURI(Uri.parse(videoFile.getUrl()));
+
+            if (videoFile != null) {
+                Log.i(TAG, videoFile.getUrl());
+                long thumb = getLayoutPosition() * 1000;
+                RequestOptions thumbnail = new RequestOptions().frame(thumb);
+                Glide.with(itemView.getContext()).load(videoFile.getUrl()).apply(thumbnail).into(ivGridPost);
             }
+
+            ivBtnPlay.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    vvUserVideo.setVisibility(View.VISIBLE);
+                    ivGridPost.setVisibility(View.INVISIBLE);
+                    ivBtnPlay.setVisibility(View.INVISIBLE);
+                    vvUserVideo.requestFocus();
+                    vvUserVideo.start();
+
+                    vvUserVideo.setOnCompletionListener ( new MediaPlayer.OnCompletionListener() {
+                        @Override
+                        public void onCompletion(MediaPlayer mediaPlayer) {
+                            vvUserVideo.setVisibility(View.INVISIBLE);
+                            ivGridPost.setVisibility(View.VISIBLE);
+                            ivBtnPlay.setVisibility(View.VISIBLE);
+
+                        }
+                    });
+                }
+            });
 
         }
 

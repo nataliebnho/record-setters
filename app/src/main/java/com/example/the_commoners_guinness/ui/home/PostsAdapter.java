@@ -3,15 +3,11 @@ package com.example.the_commoners_guinness.ui.home;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Point;
-import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaPlayer;
-import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -39,31 +35,44 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.the_commoners_guinness.MainActivity;
 import com.example.the_commoners_guinness.models.Category;
 import com.example.the_commoners_guinness.ChallengeActivity;
 import com.example.the_commoners_guinness.models.Post;
 import com.example.the_commoners_guinness.R;
 import com.example.the_commoners_guinness.ui.profile.OtherUserProfileFragment;
-import com.example.the_commoners_guinness.ui.profile.ProfileFragment;
+import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.LoadControl;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.parse.FindCallback;
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseRelation;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.parceler.Parcels;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -75,6 +84,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
     private FragmentActivity c;
     private List<Post> posts;
     private Activity activity;
+    SimpleExoPlayer simpleExoPlayer;
+    PlayerView playerView;
 
 
     public PostsAdapter(FragmentActivity c, List<Post> posts) {
@@ -198,7 +209,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
 
         private void configureVideoView(Post post) {
             ParseFile file = post.getVideo();
-
             vvPostVideo.setVideoURI(Uri.parse(file.getUrl()));
             vvPostVideo.requestFocus();
             vvPostVideo.start();
@@ -236,7 +246,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                 }
                 @Override
                 public void onFinish() {
-                    tvCountdown.setText("");
+                    tvCountdown.setText("The voting period for this category is closed");
                 }
             }.start();
         }
@@ -294,7 +304,12 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                     @Override
                     public void onClick(View v) {
                         try {
-                            if (post.getCategory().hasVoted(ParseUser.getCurrentUser())) {
+                            Category currentCategory = post.getCategory();
+                            ParseUser user = ParseUser.getCurrentUser();
+                            Log.d(TAG, "onClick: " + currentCategory.getUsersVoted().toString());
+                            Log.d(TAG, "onClick: " + user.getUsername());
+                            if (currentCategory.hasVoted(user)) {
+                                Log.d(TAG, "onClick: has voted");
                                 if (ivVote.isSelected()) {
                                     Log.i("category status: ", "user has voted in this category, and is unliking that post");
                                     deleteVote(post);
@@ -308,7 +323,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                                     Toast.makeText(c.getApplicationContext(), "You can only vote for one post per category", Toast.LENGTH_SHORT).show();
                                 }
                             } else {
-                                Log.i("category status: ", "user has not voted in this category");
+                                Log.i("category status: ", "user has not voted in this category yet");
                                 setVoteButtons(post);
                             }
                         } catch (ParseException | JSONException e) {
@@ -324,6 +339,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                 deleteVote(post);
                 ivVote.setImageResource(R.drawable.vote_empty);
                 ivVote.setSelected(false);
+                Log.d("voted", "setVoteButtons: this is false now");
                 tvNumVotes.setText("" + (currentVoteSize - 1));
                 currentVoteSize -= 1;
                 queryForUpdateWinner(category);
@@ -331,6 +347,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                 postVote(post);
                 ivVote.setImageResource(R.drawable.vote);
                 ivVote.setSelected(true);
+                Log.d("voted", "setVoteButtons: this is true now");
                 tvNumVotes.setText("" + (currentVoteSize + 1));
                 currentVoteSize += 1;
                 queryForUpdateWinner(category);
@@ -447,7 +464,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             tvCaption = itemView.findViewById(R.id.tvCaption);
             tvCategory = itemView.findViewById(R.id.tvCategory);
             tvUsername = itemView.findViewById(R.id.tvUsername);
-            vvPostVideo = itemView.findViewById(R.id.vvPostVideo);
+            vvPostVideo = itemView.findViewById(R.id.vvUserVideo);
             ivChallenge = itemView.findViewById(R.id.ivChallenge);
             ivVote = itemView.findViewById(R.id.ivVote);
             tvNumVotes = itemView.findViewById(R.id.tvNumVotes);
@@ -508,8 +525,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         relation.add(ParseUser.getCurrentUser());
         post.setVoteCount(post.getVoteCount() + 1);
         post.getCategory().setUsersVoted(ParseUser.getCurrentUser().getObjectId());
-        post.save();
-        post.getCategory().save();
+        post.saveInBackground();
+        post.getCategory().saveInBackground();
 
     }
 
@@ -518,11 +535,23 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         relation.remove(ParseUser.getCurrentUser());
         post.setVoteCount(post.getVoteCount() - 1);
 
-        if (post.getCategory().hasVoted(ParseUser.getCurrentUser())){
-            post.getCategory().removeVote(ParseUser.getCurrentUser());
-            post.getCategory().save();
+        Category currentCategory = post.getCategory();
+        ParseUser user = ParseUser.getCurrentUser();
+
+        if (currentCategory.hasVoted(user)){
+            currentCategory.removeVote(user);
+            currentCategory.saveInBackground(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    Log.d("voted", "done: saving category");
+                    Log.d("voted1", "deleteVote: saving postin backgoriunddfadsf");
+                    post.saveInBackground();
+                }
+            });
+        } else {
+            Log.d("voted2", "deleteVote: saving postin backgoriunddfadsf");
+            post.saveInBackground();
         }
-        post.save();
     }
 
 

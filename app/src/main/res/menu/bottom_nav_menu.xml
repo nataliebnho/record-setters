@@ -14,7 +14,7 @@
     <item
         android:id="@+id/navigation_viewChallenges"
         android:icon="@drawable/firstplace"
-        android:title="Challenges" />
+        android:title="Discover" />
 
     <item
         android:id="@+id/navigation_profile"

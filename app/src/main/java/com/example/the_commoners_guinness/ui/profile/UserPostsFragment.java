@@ -16,7 +16,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.VideoView;
 
 import com.bekawestberg.loopinglayout.library.LoopingLayoutManager;
 import com.example.the_commoners_guinness.R;
@@ -66,22 +68,14 @@ public class UserPostsFragment extends Fragment {
         userPosts = new ArrayList<>();
         adapter = new ProfileAdapter(getContext(), userPosts, rvUserPosts);
 
-        //rvUserPosts.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        //rvUserPosts.setLayoutManager(new CenterZoomLayoutManager(getContext(), LinearLayout.HORIZONTAL, false));
-        final CarouselLayoutManager layoutManager = new CarouselLayoutManager(CarouselLayoutManager.VERTICAL);
-        layoutManager.setPostLayoutListener(new CarouselZoomPostLayoutListener());
 
+        queryUserPosts();
+        final CarouselLayoutManager layoutManager = new CarouselLayoutManager(CarouselLayoutManager.VERTICAL, true);
+        layoutManager.setPostLayoutListener(new CarouselZoomPostLayoutListener());
         rvUserPosts.setLayoutManager(layoutManager);
         rvUserPosts.setHasFixedSize(true);
         rvUserPosts.setAdapter(adapter);
         rvUserPosts.addOnScrollListener(new CenterScrollListener());
-
-
-
-//        SnapHelper helper = new LinearSnapHelper();
-//        helper.attachToRecyclerView(rvUserPosts);
-
-        queryUserPosts();
     }
 
     private void queryUserPosts() {

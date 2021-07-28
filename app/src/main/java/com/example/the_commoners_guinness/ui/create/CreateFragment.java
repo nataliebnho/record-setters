@@ -280,7 +280,6 @@ public class CreateFragment extends Fragment {
                     categoryObj.saveInBackground();
                 }
             }
-
         });
     }
 

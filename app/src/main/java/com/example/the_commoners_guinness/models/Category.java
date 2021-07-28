@@ -1,5 +1,7 @@
 package com.example.the_commoners_guinness.models;
 
+import android.util.Log;
+
 import androidx.annotation.Nullable;
 
 import com.parse.ParseClassName;
@@ -31,6 +33,7 @@ public class Category extends ParseObject {
                 try {
                     userPointer = usersVoted.getString(i);
                     if (userPointer.equals(user.getObjectId())) {
+                        Log.d("Category", "hasVoted: true equal to user");
                         return true;
                     }
                 } catch (JSONException e) {
@@ -38,6 +41,7 @@ public class Category extends ParseObject {
                 }
             }
         }
+        Log.d("Category", "hasVoted: false not equal to user");
         return false;
     }
 

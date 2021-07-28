@@ -19,9 +19,9 @@
 
     <fragment
         android:id="@+id/navigation_viewChallenges"
-        android:name="com.example.the_commoners_guinness.ui.challenges.AllChallengesFragment"
+        android:name="com.example.the_commoners_guinness.ui.challenges.DiscoverFragment"
         android:label="Challenges"
-        tools:layout="@layout/fragment_all_challenges" />
+        tools:layout="@layout/fragment_discover" />
 
     <fragment
         android:id="@+id/navigation_profile"
