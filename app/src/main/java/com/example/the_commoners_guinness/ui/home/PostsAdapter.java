@@ -145,8 +145,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             findViews();
         }
 
-
-
         public void bind(Post post) throws ParseException {
             tvUsername.setText(post.getUser().getUsername());
             tvCaption.setText(post.getCaption());
@@ -306,24 +304,14 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                         try {
                             Category currentCategory = post.getCategory();
                             ParseUser user = ParseUser.getCurrentUser();
-                            Log.d(TAG, "onClick: " + currentCategory.getUsersVoted().toString());
-                            Log.d(TAG, "onClick: " + user.getUsername());
-                            if (currentCategory.hasVoted(user)) {
-                                Log.d(TAG, "onClick: has voted");
-                                if (ivVote.isSelected()) {
-                                    Log.i("category status: ", "user has voted in this category, and is unliking that post");
-                                    deleteVote(post);
-                                    ivVote.setImageResource(R.drawable.vote_empty);
-                                    ivVote.setSelected(false);
-                                    tvNumVotes.setText("" + (currentVoteSize - 1));
-                                    currentVoteSize -= 1;
-                                    queryForUpdateWinner(category);
-                                } else {
-                                    Log.i("category status: ", "user has voted in this category, and is trying to like another post");
-                                    Toast.makeText(c.getApplicationContext(), "You can only vote for one post per category", Toast.LENGTH_SHORT).show();
+                            if (currentCategory.hasVoted(user)) { // user has voted in this category
+                                if (ivVote.isSelected()) { // user has voted in this category, and is unliking that post
+                                    setVoteButtons(post);
+                                } else { // user has voted in this category, and is trying to like another post
+                                    Toast.makeText(c.getApplicationContext(),
+                                            "You can only vote for one post per category", Toast.LENGTH_SHORT).show();
                                 }
-                            } else {
-                                Log.i("category status: ", "user has not voted in this category yet");
+                            } else { // user has not voted in this category yet
                                 setVoteButtons(post);
                             }
                         } catch (ParseException | JSONException e) {
@@ -351,6 +339,30 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                 tvNumVotes.setText("" + (currentVoteSize + 1));
                 currentVoteSize += 1;
                 queryForUpdateWinner(category);
+            }
+        }
+
+        private void deleteVote(Post post) throws ParseException, JSONException {
+            ParseRelation<ParseObject> relation = post.getRelation("vote");
+            relation.remove(ParseUser.getCurrentUser());
+            post.setVoteCount(post.getVoteCount() - 1);
+
+            Category currentCategory = post.getCategory();
+            ParseUser user = ParseUser.getCurrentUser();
+
+            if (currentCategory.hasVoted(user)){
+                currentCategory.removeVote(user);
+                currentCategory.saveInBackground(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        Log.d("voted", "done: saving category");
+                        Log.d("voted1", "deleteVote: saving postin backgoriunddfadsf");
+                        post.saveInBackground();
+                    }
+                });
+            } else {
+                Log.d("voted2", "deleteVote: saving postin backgoriunddfadsf");
+                post.saveInBackground();
             }
         }
 
@@ -530,29 +542,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
 
     }
 
-    private void deleteVote(Post post) throws ParseException, JSONException {
-        ParseRelation<ParseObject> relation = post.getRelation("vote");
-        relation.remove(ParseUser.getCurrentUser());
-        post.setVoteCount(post.getVoteCount() - 1);
-
-        Category currentCategory = post.getCategory();
-        ParseUser user = ParseUser.getCurrentUser();
-
-        if (currentCategory.hasVoted(user)){
-            currentCategory.removeVote(user);
-            currentCategory.saveInBackground(new SaveCallback() {
-                @Override
-                public void done(ParseException e) {
-                    Log.d("voted", "done: saving category");
-                    Log.d("voted1", "deleteVote: saving postin backgoriunddfadsf");
-                    post.saveInBackground();
-                }
-            });
-        } else {
-            Log.d("voted2", "deleteVote: saving postin backgoriunddfadsf");
-            post.saveInBackground();
-        }
-    }
 
 
     public void clear() {
