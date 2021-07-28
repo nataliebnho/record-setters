@@ -64,7 +64,7 @@ public class CreateFragment extends Fragment {
     AutoCompleteTextView actvCategory;
     List<String> categoryNames;
     List<Category> categoryObjects = new ArrayList<>();
-    long votingPeriodMillis = 84000000;
+    long votingPeriodMillis = 86400000;
 
     private static final int VIDEO_CAPTURE = 101;
     public static final int VIDEO_UPLOAD = 102;
@@ -275,9 +275,23 @@ public class CreateFragment extends Fragment {
                     Toast.makeText(getContext(), "Error while saving!", Toast.LENGTH_SHORT).show();
                 }
                 Log.i(TAG, "Post existing challenge save was successful!");
-                if (categoryObj.getFirstChallengePost() == null || category.getFirstChallengePost().getCreatedAt().getTime() > votingPeriodMillis) {
-                    categoryObj.setFirstChallengePost(post);
-                    categoryObj.saveInBackground();
+
+                try {
+                    Post firstPost = (Post) categoryObj.fetchIfNeeded().getParseObject("firstChallengePost");
+                    if (firstPost == null) {
+                        categoryObj.setFirstChallengePost(post);
+                        categoryObj.saveInBackground();
+                    }
+                    else {
+                        long firstPostTime = categoryObj.fetchIfNeeded().getParseObject("firstChallengePost").fetchIfNeeded().getCreatedAt().getTime();
+                        long timeSinceFirstChallengeMillis = System.currentTimeMillis() - firstPostTime;
+                        if (timeSinceFirstChallengeMillis > votingPeriodMillis) {
+                            categoryObj.setFirstChallengePost(post);
+                            categoryObj.saveInBackground();
+                        }
+                    }
+                } catch (ParseException parseException) {
+                    parseException.printStackTrace();
                 }
             }
         });
