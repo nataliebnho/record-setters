@@ -142,7 +142,10 @@ public class CreateFragment extends Fragment {
             int index = categoryNames.indexOf(categoryName);
             savePostChallenge(ParseUser.getCurrentUser(), caption, categoryObjects.get(index));
         } else {
-            savePost(ParseUser.getCurrentUser(), caption, categoryName);
+            Category newCategory = new Category();
+            newCategory.setName(categoryName);
+            savePostChallenge(ParseUser.getCurrentUser(), caption, newCategory);
+           // savePost(ParseUser.getCurrentUser(), caption, categoryName);
         }
         etCaption.setText("");
         actvCategory.setText("");
@@ -226,47 +229,15 @@ public class CreateFragment extends Fragment {
         }
     }
 
-
-    private void savePost(ParseUser currentUser, String caption, String categoryName) {
-        Post post = new Post();
-        post.setCaption(caption);
-        Category category = new Category();
-        category.setName(categoryName);
-        post.setCategory(category);
-        if (location != null) {
-            post.setLocation(location);
-        }
-        post.setVideo(new ParseFile(mediaFile));
-        post.setUser(currentUser);
-
-        post.saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if (e != null) {
-                    Log.e(TAG, "Error while saving", e);
-                    Toast.makeText(getContext(), "Error while saving!", Toast.LENGTH_SHORT).show();
-                }
-                Log.i(TAG, "Post save was successful!");
-                if (category.getFirstChallengePost() == null) {
-                    category.setFirstChallengePost(post);
-                    category.saveInBackground();
-                }
-            }
-        });
-    }
-
     private void savePostChallenge(ParseUser currentUser, String caption, Category categoryObj) {
         Post post = new Post();
         post.setCaption(caption);
         post.setCategory(categoryObj);
-
         if (location != null) {
             post.setLocation(location);
         }
-
         post.setVideo(new ParseFile(mediaFile));
         post.setUser(currentUser);
-
         post.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
@@ -274,8 +245,6 @@ public class CreateFragment extends Fragment {
                     Log.e(TAG, "Error while saving", e);
                     Toast.makeText(getContext(), "Error while saving!", Toast.LENGTH_SHORT).show();
                 }
-                Log.i(TAG, "Post existing challenge save was successful!");
-
                 try {
                     Post firstPost = (Post) categoryObj.fetchIfNeeded().getParseObject("firstChallengePost");
                     if (firstPost == null) {
