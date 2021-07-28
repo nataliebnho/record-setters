@@ -342,6 +342,15 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             }
         }
 
+        private void postVote(Post post) throws ParseException {
+            ParseRelation<ParseObject> relation = post.getRelation("vote");
+            relation.add(ParseUser.getCurrentUser());
+            post.setVoteCount(post.getVoteCount() + 1);
+            post.getCategory().setUsersVoted(ParseUser.getCurrentUser().getObjectId());
+            post.saveInBackground();
+            post.getCategory().saveInBackground();
+        }
+
         private void deleteVote(Post post) throws ParseException, JSONException {
             ParseRelation<ParseObject> relation = post.getRelation("vote");
             relation.remove(ParseUser.getCurrentUser());
@@ -530,16 +539,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                 }
             }
         });
-    }
-
-    private void postVote(Post post) throws ParseException {
-        ParseRelation<ParseObject> relation = post.getRelation("vote");
-        relation.add(ParseUser.getCurrentUser());
-        post.setVoteCount(post.getVoteCount() + 1);
-        post.getCategory().setUsersVoted(ParseUser.getCurrentUser().getObjectId());
-        post.saveInBackground();
-        post.getCategory().saveInBackground();
-
     }
 
 
