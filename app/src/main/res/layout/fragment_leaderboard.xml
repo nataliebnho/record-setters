@@ -75,7 +75,7 @@
             android:src="@drawable/vote" />
 
         <TextView
-            android:id="@+id/tvNumVotesFirst"
+            android:id="@+id/tvNumVotesFirstD"
             android:layout_width="34dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="350dp"
@@ -95,7 +95,7 @@
         android:layout_marginEnd="20dp">
 
         <TextView
-            android:id="@+id/tvNumVotesSecond"
+            android:id="@+id/tvNumVotesSecondD"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="330dp"
@@ -140,7 +140,7 @@
         android:layout_marginEnd="30dp">
 
         <TextView
-            android:id="@+id/tvNumVotesThird"
+            android:id="@+id/tvNumVotesThirdD"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="310dp"

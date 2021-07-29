@@ -18,6 +18,8 @@ import android.widget.SearchView;
 
 import com.example.the_commoners_guinness.R;
 import com.example.the_commoners_guinness.models.Category;
+import com.example.the_commoners_guinness.models.Post;
+import com.example.the_commoners_guinness.ui.home.PostsAdapter;
 import com.mig35.carousellayoutmanager.CarouselLayoutManager;
 import com.mig35.carousellayoutmanager.CarouselZoomPostLayoutListener;
 import com.mig35.carousellayoutmanager.CenterScrollListener;
@@ -41,27 +43,29 @@ import java.util.Map;
 public class DiscoverFragment extends Fragment {
 
     public static final String TAG = "AllChallengesFragment";
-    private static LinkedList<String> finalRecommended = new LinkedList<>();
     RecyclerView rvCategories;
     RecyclerView rvUsers;
+    RecyclerView rvRecommended;
     List<Category> allCategories;
+    List<Category> categoriesFull;
     List<Category> activeCategories;
-    List<ParseUser> allUsers;
+    List<ParseUser> topUsers;
+
+    private static LinkedList<String> recommendedCategoryStrings = new LinkedList<>();
+    List<Category> recommendedCategoryObjects;
+    List<Post> recommendedPosts;
+    private List<ParseUser> sampleUsers = new ArrayList<>();
 
     ArrayList<String> userLikes;
     HashMap<String, Double> currHM;
 
-
     protected ChallengesAdapter adapter;
     protected UserPreviewAdapter userAdapter;
+    protected ChallengesAdapter recommendedAdapter;
     SearchView actionSearch;
-    List<Category> categoriesFull;
 
-    private List<String> categories = new ArrayList<>();
-    private List<ParseUser> sampleUsers = new ArrayList<>();
     private List<ParseUser> allUsersRecommended = new ArrayList<>();
 
-    private boolean isRunning = true;
 
     public DiscoverFragment() {
         // Required empty public constructor
@@ -85,21 +89,30 @@ public class DiscoverFragment extends Fragment {
 
         rvCategories = view.findViewById(R.id.rvChallengeType);
         rvUsers = view.findViewById(R.id.rvTopUsers);
+        rvRecommended = view.findViewById(R.id.rvRecommended);
 
-        allCategories = new ArrayList<>();
+        //allCategories = new ArrayList<>();
         activeCategories = new ArrayList<>();
         categoriesFull = new ArrayList<>();
-        allUsers = new ArrayList<>();
+        topUsers = new ArrayList<>();
+        recommendedCategoryObjects = new ArrayList<>();
+        recommendedPosts = new ArrayList<>();
 
         adapter = new ChallengesAdapter(getContext(), activeCategories, categoriesFull);
-        userAdapter = new UserPreviewAdapter(getContext(), allUsers);
+        userAdapter = new UserPreviewAdapter(getContext(), topUsers);
+        recommendedAdapter = new ChallengesAdapter(getContext(), recommendedCategoryObjects, categoriesFull);
         actionSearch = view.findViewById(R.id.action_search);
 
-        setRVAdapter();
-        setRVUserAdapter();
+        setAdapter(rvCategories, adapter);
+        setAdapter(rvUsers, userAdapter);
+        setAdapter(rvRecommended, recommendedAdapter);
+
+//
+//        setRVAdapter();
+//        setRVUserAdapter();
+//        setRVRecommendedAdapter();
         queryCategories();
         queryUsers();
-
         setRecommended();
 
         actionSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -116,28 +129,14 @@ public class DiscoverFragment extends Fragment {
         });
     }
 
-    private void setRVAdapter() {
-
+    private void setAdapter(RecyclerView rv, RecyclerView.Adapter adapter) {
         final CarouselLayoutManager layoutManager = new CarouselLayoutManager(CarouselLayoutManager.HORIZONTAL, true);
         layoutManager.setPostLayoutListener(new CarouselZoomPostLayoutListener(0.5f));
 
-        rvCategories.setLayoutManager(layoutManager);
-        rvCategories.setHasFixedSize(true);
-        rvCategories.setAdapter(adapter);
-        rvCategories.addOnScrollListener(new CenterScrollListener());
-
-    }
-
-    private void setRVUserAdapter() {
-
-        final CarouselLayoutManager layoutManager = new CarouselLayoutManager(CarouselLayoutManager.HORIZONTAL, true);
-        layoutManager.setPostLayoutListener(new CarouselZoomPostLayoutListener(0.5f));
-
-        rvUsers.setLayoutManager(layoutManager);
-        rvUsers.setHasFixedSize(true);
-        rvUsers.setAdapter(userAdapter);
-        rvUsers.addOnScrollListener(new CenterScrollListener());
-
+        rv.setLayoutManager(layoutManager);
+        rv.setHasFixedSize(true);
+        rv.setAdapter(adapter);
+        rv.addOnScrollListener(new CenterScrollListener());
     }
 
     private void queryCategories() {
@@ -155,11 +154,9 @@ public class DiscoverFragment extends Fragment {
                 for (Category category: categories) {
                     if (category.getFirstChallengePost() != null) {
                         activeCategories.add(category);
+                        categoriesFull.add(category);
                     }
                 }
-
-                allCategories.addAll(categories);
-                categoriesFull.addAll(categories);
                 adapter.notifyDataSetChanged();
             }
         });
@@ -174,7 +171,7 @@ public class DiscoverFragment extends Fragment {
                 if (e != null) {
                     Log.e(TAG, "Issue with retrieving posts", e);
                 }
-                allUsers.addAll(users);
+                topUsers.addAll(users);
                 userAdapter.notifyDataSetChanged();
             }
         });
@@ -187,10 +184,6 @@ public class DiscoverFragment extends Fragment {
         currHM = generateNormHM(userLikes);
         // 2. Sample 10 random candidate users to do recommendations
         queryUsersRecommended();
-
-        // 4. Take keys in category score hashmap and sort them. Return keys in a list based on
-        //    category score
-        //finalRecommended = sortByValue(recommended);
     }
 
     private void advance() {
@@ -233,15 +226,16 @@ public class DiscoverFragment extends Fragment {
                 }
             }
         }
+
+        // 4 sort list by values (descending order) and only take
         sortByValue(recommended);
         Log.i("FINAL", recommended.toString());
-
-        // Only include
-        Log.i("FINAL", finalRecommended.toString());
+        Log.i("FINAL", recommendedCategoryStrings.toString());
+        getCategoriesFromName(recommendedCategoryStrings);
     }
 
     public static HashMap<String, Double> sortByValue(HashMap<String, Double> hm) {
-        finalRecommended.clear();
+        recommendedCategoryStrings.clear();
         // Create a list from elements of HashMap
         List<Map.Entry<String, Double> > list =
                 new LinkedList<Map.Entry<String, Double> >(hm.entrySet());
@@ -259,22 +253,10 @@ public class DiscoverFragment extends Fragment {
         HashMap<String, Double> temp = new LinkedHashMap<String, Double>();
         for (Map.Entry<String, Double> aa : list) {
             temp.put(aa.getKey(), aa.getValue());
-            finalRecommended.add(aa.getKey());
+            recommendedCategoryStrings.add(aa.getKey());
         }
         return temp;
     }
-
-    // @RequiresApi(api = Build.VERSION_CODES.N)
-//    public static <K, V extends Comparable<? super V>> List<K> sortByValue(Map<K, V> map) {
-//        List<Map.Entry<K, V>> list = new ArrayList<>(map.entrySet());
-//        list.sort(Map.Entry.comparingByValue());
-//        List<K> retLst = new ArrayList<>();
-//        for (Map.Entry<K, V> pair : list ) {
-//            retLst.add(pair.getKey());
-//        }
-//
-//        return retLst;
-//    }
 
     private HashMap<String, Double> generateNormHM(List<String> list) {
         HashMap<String, Double> map = new HashMap<String, Double>();
@@ -307,6 +289,23 @@ public class DiscoverFragment extends Fragment {
                 advance();
             }
         });
+    }
+
+    private void getCategoriesFromName(List<String> categories) {
+        ParseQuery<Category> query = ParseQuery.getQuery(Category.class);
+        for (String categoryName : categories) {
+            query.whereEqualTo("name", categoryName);
+            query.findInBackground(new FindCallback<Category>() {
+                @Override
+                public void done(List<Category> categories, ParseException e) {
+                    recommendedCategoryObjects.add(categories.get(0));
+                    Category category = categories.get(0);
+                    Post winner = (Post) category.get("winner");
+                    recommendedPosts.add(winner);
+                    recommendedAdapter.notifyDataSetChanged();
+                }
+            });
+        }
     }
 
 }

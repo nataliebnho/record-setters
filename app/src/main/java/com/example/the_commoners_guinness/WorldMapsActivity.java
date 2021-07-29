@@ -96,7 +96,8 @@ public class WorldMapsActivity extends FragmentActivity implements OnMapReadyCal
             Boolean isWinner = Boolean.valueOf(mapElement.getValue()[2]);
 
             if (isWinner) {
-                mMap.addMarker(new MarkerOptions().position(location).title(title).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+                mMap.addMarker(new MarkerOptions().position(location).title(title).
+                        icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
             } else {
                 mMap.addMarker(new MarkerOptions().position(location).title(title));
             }

@@ -141,7 +141,6 @@ public class SetLocationMapsActivity extends FragmentActivity implements OnMapRe
     @Override
     public void onMarkerDrag(@NonNull @NotNull Marker marker) {
         LatLng position0 = marker.getPosition();
-
         Log.d(getClass().getSimpleName(),
                 String.format("Dragging to %f:%f", position0.latitude,
                         position0.longitude));

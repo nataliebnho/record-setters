@@ -78,9 +78,9 @@ public class LeaderboardFragment extends Fragment {
         tvUsernameFirst = view.findViewById(R.id.tvUsernameFirstCV);
         tvUsernameSecond = view.findViewById(R.id.tvUsernameSecondCV);
         tvUsernameThird = view.findViewById(R.id.tvUsernameThirdCV);
-        tvNumVotesFirst = view.findViewById(R.id.tvNumVotesFirst);
-        tvNumVotesSecond = view.findViewById(R.id.tvNumVotesSecond);
-        tvNumVotesThird = view.findViewById(R.id.tvNumVotesThird);
+        tvNumVotesFirst = view.findViewById(R.id.tvNumVotesFirstD);
+        tvNumVotesSecond = view.findViewById(R.id.tvNumVotesSecondD);
+        tvNumVotesThird = view.findViewById(R.id.tvNumVotesThirdD);
     }
 
     private void setRecyclerView() {
@@ -125,7 +125,6 @@ public class LeaderboardFragment extends Fragment {
 
     public void setLeaderboardUsernamesandVotes() throws ParseException {
         Log.i(TAG, String.valueOf(numLeaderboard));
-        //Will clean this logic later
         if (numLeaderboard >= 1) {
             tvUsernameFirst.setText(leaderboard[0].getUser().getUsername());
             tvNumVotesFirst.setText(String.valueOf(leaderboard[0].get("voteCount")));

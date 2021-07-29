@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +30,6 @@ import org.parceler.Parcels;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -84,7 +84,6 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.Vi
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
             List<Category> filteredList = new ArrayList<>();
-
             if (constraint.toString().isEmpty()) {
                 Log.i(TAG, "constraint is null");
                 filteredList.addAll(categoryFull);
@@ -116,6 +115,9 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.Vi
         TextView tvUsernameFirstCV;
         TextView tvUsernameSecondCV;
         TextView tvUsernameThirdCV;
+        TextView tvNumVotesFirst;
+        TextView tvNumVotesSecond;
+        TextView tvNumVotesThird;
         Category categoryObj;
         ImageView ivChallengeFromView;
         int numLeaderboard;
@@ -149,23 +151,27 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.Vi
         }
 
         private void setCountDownTimer(Category category) throws com.parse.ParseException {
-            Date date = (Date) category.fetchIfNeeded().getParseObject("firstChallengePost").fetchIfNeeded().get("createdAt");
-            long timeSinceFirstChallengeMillis = System.currentTimeMillis() - (category.getFirstChallengePost().getCreatedAt()).getTime();
-            timeLeftInMillis = votingPeriodMillis - timeSinceFirstChallengeMillis;
+            if (category.fetchIfNeeded().getParseObject("firstChallengePost") != null) {
+                Date date = (Date) category.fetchIfNeeded().getParseObject("firstChallengePost").fetchIfNeeded().get("createdAt");
+                timeSinceFirstChallengeMillis = System.currentTimeMillis() - (category.getFirstChallengePost().getCreatedAt()).getTime();
+                timeLeftInMillis = votingPeriodMillis - timeSinceFirstChallengeMillis;
 
-            countDownTimer = new CountDownTimer(timeLeftInMillis, 1000) {
-                @Override
-                public void onTick(long millisUntilFinished) {
-                    timeLeftInMillis = millisUntilFinished;
-                    updateCountDownText();
-                }
+                countDownTimer = new CountDownTimer(timeLeftInMillis, 1000) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        timeLeftInMillis = millisUntilFinished;
+                        updateCountDownText();
+                    }
 
-                @Override
-                public void onFinish() {
-                    tvCountdownView.setText("The voting period for this category is closed");
-                }
-            }.start();
-
+                    @Override
+                    public void onFinish() {
+                        tvCountdownView.setText("The voting period for this category is closed");
+                    }
+                }.start();
+            } else {
+                tvCountdownView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+                tvCountdownView.setText("The voting period for this category is closed");
+            }
         }
 
         private void updateCountDownText() {
@@ -212,16 +218,16 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.Vi
         public void setLeaderboardUsernamesandVotes() throws com.parse.ParseException {
             if (numLeaderboard >= 1) {
                 tvUsernameFirstCV.setText(leaderboard[0].getUser().getUsername());
-              //  tvNumVotesFirstCV.setText(String.valueOf(leaderboard[0].get("voteCount")));
+                tvNumVotesFirst.setText(String.valueOf(leaderboard[0].get("voteCount")));
             }
 
             if (numLeaderboard >= 2) {
                 tvUsernameSecondCV.setText(leaderboard[1].getUser().getUsername());
-                //tvNumVotesSecond.setText(String.valueOf(leaderboard[1].get("voteCount")));
+                tvNumVotesSecond.setText(String.valueOf(leaderboard[1].get("voteCount")));
             }
             if (numLeaderboard == 3) {
                 tvUsernameThirdCV.setText(leaderboard[2].getUser().getUsername());
-                //tvNumVotesThird.setText(String.valueOf(leaderboard[2].get("voteCount")));
+                tvNumVotesThird.setText(String.valueOf(leaderboard[2].get("voteCount")));
 
             }
         }
@@ -234,8 +240,9 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.Vi
             tvUsernameThirdCV = itemView.findViewById(R.id.tvUsernameThirdCV);
             rlExpandable = itemView.findViewById(R.id.rlExpandable);
             ivChallengeFromView = itemView.findViewById(R.id.ivChallengeFromView);
-            //rlExpandable.setVisibility(View.GONE);
-
+            tvNumVotesFirst = itemView.findViewById(R.id.tvNumVotesFirstD);
+            tvNumVotesSecond = itemView.findViewById(R.id.tvNumVotesSecondD);
+            tvNumVotesThird = itemView.findViewById(R.id.tvNumVotesThirdD);
         }
 
     }

@@ -65,6 +65,7 @@ public class CreateFragment extends Fragment {
     List<String> categoryNames;
     List<Category> categoryObjects = new ArrayList<>();
     long votingPeriodMillis = 86400000;
+    boolean newestPost = false;
 
     private static final int VIDEO_CAPTURE = 101;
     public static final int VIDEO_UPLOAD = 102;
@@ -248,8 +249,10 @@ public class CreateFragment extends Fragment {
                 try {
                     Post firstPost = (Post) categoryObj.fetchIfNeeded().getParseObject("firstChallengePost");
                     if (firstPost == null) {
+                        categoryObj.setWinnerUser(ParseUser.getCurrentUser());
                         categoryObj.setFirstChallengePost(post);
                         categoryObj.saveInBackground();
+                        newestPost = true;
                     }
                     else {
                         long firstPostTime = categoryObj.fetchIfNeeded().getParseObject("firstChallengePost").fetchIfNeeded().getCreatedAt().getTime();
@@ -264,6 +267,10 @@ public class CreateFragment extends Fragment {
                 }
             }
         });
+        if (newestPost) {
+            categoryObj.setWinner(post);
+            categoryObj.saveInBackground();
+        }
     }
 
     private List<String> queryCategories() {
@@ -281,7 +288,6 @@ public class CreateFragment extends Fragment {
                 }
             }
         });
-
         return categoryNames;
     }
 

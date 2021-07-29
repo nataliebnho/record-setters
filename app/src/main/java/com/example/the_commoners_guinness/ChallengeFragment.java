@@ -52,11 +52,10 @@ public class ChallengeFragment extends Fragment {
     File mediaFile;
     EditText etCaptionChallenge;
     TextView tvChallengeCategory;
-    String categoryName;
     Category category;
     Button btnAddLocationChallenge;
     ParseGeoPoint location;
-    long votingPeriodMillis = 300000;
+    long votingPeriodMillis = 86400000;
     private static final int VIDEO_CAPTURE = 10;
     public static final int VIDEO_UPLOAD = 11;
     public static final int MAPS_REQUEST_CODE = 41;
