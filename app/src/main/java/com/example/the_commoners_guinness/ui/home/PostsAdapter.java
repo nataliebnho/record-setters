@@ -73,6 +73,7 @@ import org.json.JSONException;
 import org.parceler.Parcels;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -406,7 +407,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                             tvNumLikes.setText("" + (currentLikeSize + 1));
                             currentLikeSize += 1;
                         }
-                    } catch (ParseException e) {
+                    } catch (ParseException | JSONException e) {
                         e.printStackTrace();
                         Log.e(TAG, "post was not liked");
                     }
@@ -576,13 +577,39 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
     private void postLikes(Post post) throws ParseException {
         ParseRelation<ParseObject> relation = post.getRelation("like");
         relation.add(ParseUser.getCurrentUser());
+
+        String categoryName = post.getCategory().getName();
+        ParseUser.getCurrentUser().add("likes", categoryName);
+        ParseUser.getCurrentUser().saveInBackground();
+
         post.save();
     }
 
-    private void deleteLikes(Post post) throws ParseException {
+    private void deleteLikes(Post post) throws ParseException, JSONException {
         ParseRelation<ParseObject> relation = post.getRelation("like");
         relation.remove(ParseUser.getCurrentUser());
+
+        String postCategory = post.getCategory().getName();
+        removeFromLikeArray(ParseUser.getCurrentUser(), postCategory);
+
+        ParseUser.getCurrentUser().saveInBackground();
         post.save();
+    }
+
+    public void removeFromLikeArray(ParseUser currentUser, String postCategory) throws JSONException {
+        ArrayList<String> userLikes = (ArrayList<String>) currentUser.get("likes");
+
+        if (userLikes == null)
+            userLikes = new ArrayList<>();
+
+        for (int i  = 0; i < userLikes.size(); i++) {
+            String categoryName = userLikes.get(i);
+            if (categoryName.equals(postCategory)){
+                userLikes.remove(i);
+            }
+        }
+        JSONArray mJSONArray = new JSONArray(Arrays.asList(userLikes));
+        ParseUser.getCurrentUser().put("likes", userLikes);
     }
 
     private void postComment(Post post, String comment) throws ParseException {

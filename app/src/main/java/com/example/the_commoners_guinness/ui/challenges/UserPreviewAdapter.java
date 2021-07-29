@@ -94,7 +94,7 @@ public class UserPreviewAdapter extends RecyclerView.Adapter<UserPreviewAdapter.
             tvUsernamePreview.setText(user.getUsername());
 
             if (user.getParseFile("profilePicture") != null) {
-                String profilePicture = ParseUser.getCurrentUser().getParseFile("profilePicture").getUrl();
+                String profilePicture = user.getParseFile("profilePicture").getUrl();
                 Glide.with(context).load(profilePicture).into(ivUserPreviewPic);
             }
 

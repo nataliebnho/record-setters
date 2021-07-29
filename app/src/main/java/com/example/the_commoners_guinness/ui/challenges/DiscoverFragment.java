@@ -1,9 +1,11 @@
 package com.example.the_commoners_guinness.ui.challenges;
 
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,20 +30,38 @@ import com.parse.ParseUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class DiscoverFragment extends Fragment {
 
     public static final String TAG = "AllChallengesFragment";
+    private static LinkedList<String> finalRecommended = new LinkedList<>();
     RecyclerView rvCategories;
     RecyclerView rvUsers;
     List<Category> allCategories;
     List<Category> activeCategories;
     List<ParseUser> allUsers;
+
+    ArrayList<String> userLikes;
+    HashMap<String, Double> currHM;
+
+
     protected ChallengesAdapter adapter;
     protected UserPreviewAdapter userAdapter;
     SearchView actionSearch;
     List<Category> categoriesFull;
+
+    private List<String> categories = new ArrayList<>();
+    private List<ParseUser> sampleUsers = new ArrayList<>();
+    private List<ParseUser> allUsersRecommended = new ArrayList<>();
+
+    private boolean isRunning = true;
 
     public DiscoverFragment() {
         // Required empty public constructor
@@ -80,6 +100,7 @@ public class DiscoverFragment extends Fragment {
         queryCategories();
         queryUsers();
 
+        setRecommended();
 
         actionSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -155,6 +176,135 @@ public class DiscoverFragment extends Fragment {
                 }
                 allUsers.addAll(users);
                 userAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    private void setRecommended() {
+        ParseUser currUser = ParseUser.getCurrentUser();
+        // 1. Generate hashmap of normalized scores per category for current user
+        userLikes = (ArrayList<String>) currUser.get("likes");
+        currHM = generateNormHM(userLikes);
+        // 2. Sample 10 random candidate users to do recommendations
+        queryUsersRecommended();
+
+        // 4. Take keys in category score hashmap and sort them. Return keys in a list based on
+        //    category score
+        //finalRecommended = sortByValue(recommended);
+    }
+
+    private void advance() {
+        Collections.shuffle(allUsersRecommended);
+        for (int i = 0; i < 5; i++) {
+            sampleUsers.add(allUsersRecommended.get(i));
+        }
+        HashMap<String, Double> recommended = new HashMap<>();
+        // 3. Loop through each candidate user
+        for (ParseUser candidateUser : sampleUsers) {
+            // 3.1 Retrieve categories liked by each user
+            ArrayList<String> candLikes = new ArrayList<>();
+            candLikes = (ArrayList<String>) candidateUser.get("likes");
+            // 3.2 Generate hashmap of normalized scores per category for candidate user
+            if (candLikes == null) {
+                continue;
+            }
+
+            HashMap<String, Double> candHM = generateNormHM(candLikes);
+            // 3.3 Calculate set intersection score by looping through
+            //     each category liked by the current user, adding
+            //     up percentages to generate final overlap score
+            double overlapScore = 0;
+            for (String categoryName : userLikes) {
+                if (candHM.containsKey(categoryName)) {
+                    overlapScore += candHM.get(categoryName) + currHM.get(categoryName);
+                }
+            }
+            // 3.4 Update rank of categories by looping through each category liked by the
+            //     candidate user and checking if the category is not liked by the current user.
+            //     If it isn't, then we add the current category to the return list adding the
+            //     overlap score to the current category's score
+            for (String categoryName : candLikes) {
+                if (!currHM.containsKey(categoryName)) {
+                    if (recommended.containsKey(categoryName)) {
+                        recommended.put(categoryName, recommended.get(categoryName) + overlapScore);
+                    } else {
+                        recommended.put(categoryName, overlapScore);
+                    }
+                }
+            }
+        }
+        sortByValue(recommended);
+        Log.i("FINAL", recommended.toString());
+
+        // Only include
+        Log.i("FINAL", finalRecommended.toString());
+    }
+
+    public static HashMap<String, Double> sortByValue(HashMap<String, Double> hm) {
+        finalRecommended.clear();
+        // Create a list from elements of HashMap
+        List<Map.Entry<String, Double> > list =
+                new LinkedList<Map.Entry<String, Double> >(hm.entrySet());
+
+        // Sort the list
+        Collections.sort(list, new Comparator<Map.Entry<String, Double> >() {
+            public int compare(Map.Entry<String, Double> o1,
+                               Map.Entry<String, Double> o2)
+            {
+                return (o2.getValue()).compareTo(o1.getValue());
+            }
+        });
+
+        // put data from sorted list to hashmap
+        HashMap<String, Double> temp = new LinkedHashMap<String, Double>();
+        for (Map.Entry<String, Double> aa : list) {
+            temp.put(aa.getKey(), aa.getValue());
+            finalRecommended.add(aa.getKey());
+        }
+        return temp;
+    }
+
+    // @RequiresApi(api = Build.VERSION_CODES.N)
+//    public static <K, V extends Comparable<? super V>> List<K> sortByValue(Map<K, V> map) {
+//        List<Map.Entry<K, V>> list = new ArrayList<>(map.entrySet());
+//        list.sort(Map.Entry.comparingByValue());
+//        List<K> retLst = new ArrayList<>();
+//        for (Map.Entry<K, V> pair : list ) {
+//            retLst.add(pair.getKey());
+//        }
+//
+//        return retLst;
+//    }
+
+    private HashMap<String, Double> generateNormHM(List<String> list) {
+        HashMap<String, Double> map = new HashMap<String, Double>();
+        for (String categoryName : list) {
+            if (map.containsKey(categoryName)) {
+                map.put(categoryName, map.get(categoryName) + 1);
+            } else {
+                Double d = new Double(1);
+                map.put(categoryName, d);
+            }
+        }
+        for (String categoryName : map.keySet()) {
+            map.put(categoryName,  map.get(categoryName) / list.size());
+        }
+        return map;
+    }
+
+    private void queryUsersRecommended() {
+        List<ParseUser> users = new ArrayList<>();
+        ParseQuery<ParseUser> query = ParseQuery.getQuery(ParseUser.class);
+        query.whereNotEqualTo("objectId", ParseUser.getCurrentUser().getObjectId());
+        query.setLimit(20);
+        query.findInBackground(new FindCallback<ParseUser>() {
+            @Override
+            public void done(List<ParseUser> users, ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Issue with retrieving posts", e);
+                }
+                allUsersRecommended.addAll(users);
+                advance();
             }
         });
     }

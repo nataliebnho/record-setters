@@ -112,7 +112,6 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ViewHold
                     });
                 }
             });
-
         }
 
         @Override
