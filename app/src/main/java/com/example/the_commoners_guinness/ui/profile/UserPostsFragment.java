@@ -41,6 +41,7 @@ public class UserPostsFragment extends Fragment {
     protected ProfileAdapter adapter;
     protected List<Post> userPosts;
     RecyclerView rvUserPosts;
+    protected ParseUser user;
 
     public static final String TAG = "UserPostsFragment";
 
@@ -63,13 +64,14 @@ public class UserPostsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        user = getArguments().getParcelable("User");
 
         rvUserPosts = view.findViewById(R.id.rvUserPosts);
         userPosts = new ArrayList<>();
         adapter = new ProfileAdapter(getContext(), userPosts, rvUserPosts);
 
 
-        queryUserPosts();
+        queryUserPosts(user);
         final CarouselLayoutManager layoutManager = new CarouselLayoutManager(CarouselLayoutManager.VERTICAL, true);
         layoutManager.setPostLayoutListener(new CarouselZoomPostLayoutListener());
         rvUserPosts.setLayoutManager(layoutManager);
@@ -78,10 +80,10 @@ public class UserPostsFragment extends Fragment {
         rvUserPosts.addOnScrollListener(new CenterScrollListener());
     }
 
-    private void queryUserPosts() {
+    private void queryUserPosts(ParseUser user) {
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         query.include(Post.KEY_USER);
-        query.whereEqualTo(Post.KEY_USER, ParseUser.getCurrentUser());
+        query.whereEqualTo(Post.KEY_USER, user);
         query.addDescendingOrder("createdAt");
         query.findInBackground(new FindCallback<Post>() {
             @Override

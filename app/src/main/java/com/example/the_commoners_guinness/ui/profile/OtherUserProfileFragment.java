@@ -20,6 +20,7 @@ import com.bumptech.glide.Glide;
 import com.example.the_commoners_guinness.models.Category;
 import com.example.the_commoners_guinness.R;
 import com.example.the_commoners_guinness.ViewPagerAdapter;
+import com.example.the_commoners_guinness.models.Post;
 import com.google.android.material.tabs.TabLayout;
 import com.parse.FindCallback;
 import com.parse.Parse;
@@ -54,6 +55,8 @@ public class OtherUserProfileFragment extends Fragment {
     Fragment userBadgesFragment;
 
     private ArrayList<Category> categoryWins = new ArrayList<Category>();
+    private ArrayList<Post> userPosts = new ArrayList<Post>();
+
 
     public OtherUserProfileFragment() {
         // Required empty public constructor
@@ -154,7 +157,6 @@ public class OtherUserProfileFragment extends Fragment {
                 setChildrenFragments(view);
             }
         });
-
     }
 
     private void setBadgesText() {
@@ -167,6 +169,10 @@ public class OtherUserProfileFragment extends Fragment {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
         userBadgesFragment = new UserBadgesFragment();
         Fragment userPostsFragment = new UserPostsFragment();
+
+        Bundle userBundle = new Bundle();
+        userBundle.putParcelable("User", user);
+        userPostsFragment.setArguments(userBundle);
 
         Bundle badgesBundle = new Bundle();
         badgesBundle.putParcelableArrayList("Categories", categoryWins);

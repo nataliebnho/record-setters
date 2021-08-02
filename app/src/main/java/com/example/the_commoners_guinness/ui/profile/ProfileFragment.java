@@ -182,6 +182,10 @@ public class ProfileFragment extends Fragment {
         userBadgesFragment = new UserBadgesFragment();
         Fragment userPostsFragment = new UserPostsFragment();
 
+        Bundle userBundle = new Bundle();
+        userBundle.putParcelable("User", ParseUser.getCurrentUser());
+        userPostsFragment.setArguments(userBundle);
+
         Bundle badgesBundle = new Bundle();
         badgesBundle.putParcelableArrayList("Categories", categoryWins);
         userBadgesFragment.setArguments(badgesBundle);
