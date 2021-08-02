@@ -16,11 +16,16 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.viewpager.widget.ViewPager;
 
+import com.example.the_commoners_guinness.ViewPagerAdapter;
 import com.example.the_commoners_guinness.models.Category;
 import com.example.the_commoners_guinness.LoginActivity;
 import com.example.the_commoners_guinness.models.Post;
 import com.example.the_commoners_guinness.R;
+import com.example.the_commoners_guinness.ui.profile.UserBadgesFragment;
+import com.example.the_commoners_guinness.ui.profile.UserPostsFragment;
+import com.google.android.material.tabs.TabLayout;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
@@ -35,11 +40,9 @@ public class HomeFragment extends Fragment {
 
     public static final String TAG = "HomeFragment";
     Button btnLogout;
-    RecyclerView rvPosts;
-    SwipeRefreshLayout swipeContainer;
 
-    protected PostsAdapter adapter;
-    protected List<Post> allPosts;
+    TabLayout tabLayout;
+    ViewPager viewPager;
 
 
     public HomeFragment() {
@@ -61,9 +64,7 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        configureRecyclerView(view);
-        configureSwipeContainer(view);
-        queryPosts();
+        setChildrenFragments(view);
         btnLogout = view.findViewById(R.id.btnLogout);
 
         btnLogout.setOnClickListener(new View.OnClickListener() {
@@ -74,57 +75,19 @@ public class HomeFragment extends Fragment {
                 getActivity().finish();
             }
         });
-
     }
 
-    private void configureRecyclerView(View view) {
-        rvPosts = view.findViewById(R.id.rvPosts);
-        allPosts = new ArrayList<>();
-        adapter = new PostsAdapter(getActivity(), allPosts);
-        rvPosts.setAdapter(adapter);
-        rvPosts.setLayoutManager(new LinearLayoutManager(getContext()));
+    private void setChildrenFragments(View view) {
+        tabLayout = view.findViewById(R.id.tabLayoutHome);
+        viewPager = view.findViewById(R.id.viewPagerHome);
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
+        Fragment allPostsFragment = new HomeAllTimelineFragment();
+        Fragment followingPostsFragment = new HomeFollowingFragment();
+
+        adapter.addFragment(allPostsFragment, "Timeline");
+        adapter.addFragment(followingPostsFragment, "Following");
+        viewPager.setAdapter(adapter);
+        tabLayout.setupWithViewPager(viewPager);
     }
-
-    private void configureSwipeContainer(View view) {
-        swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer);
-
-        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                fetchTimelineAsync(0);
-            }
-        });
-        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
-                android.R.color.holo_green_light,
-                android.R.color.holo_orange_light,
-                android.R.color.holo_red_light);
-    }
-
-    private void fetchTimelineAsync (int i) {
-        adapter.clear();
-        queryPosts();
-        swipeContainer.setRefreshing(false);
-    }
-
-    private void queryPosts() {
-        ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
-        query.include(Post.KEY_USER);
-        query.setLimit(20);
-        query.addDescendingOrder("createdAt");
-
-        query.findInBackground(new FindCallback<Post>() {
-            @Override
-            public void done(List<Post> posts, ParseException e) {
-                if (e != null) {
-                    Log.e(TAG, "Issue with retrieving posts", e);
-                }
-
-                allPosts.addAll(posts);
-                adapter.notifyDataSetChanged();
-            }
-        });
-
-    }
-
 
 }
