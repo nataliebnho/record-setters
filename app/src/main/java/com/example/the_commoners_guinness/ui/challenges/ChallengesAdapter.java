@@ -165,6 +165,7 @@ public class ChallengesAdapter extends RecyclerView.Adapter<ChallengesAdapter.Vi
 
                     @Override
                     public void onFinish() {
+                        tvCountdownView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
                         tvCountdownView.setText("The voting period for this category is closed");
                     }
                 }.start();

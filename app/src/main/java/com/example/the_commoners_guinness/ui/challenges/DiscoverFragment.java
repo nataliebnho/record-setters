@@ -34,6 +34,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -99,7 +100,7 @@ public class DiscoverFragment extends Fragment {
         recommendedPosts = new ArrayList<>();
 
         adapter = new ChallengesAdapter(getContext(), activeCategories, categoriesFull);
-        userAdapter = new UserPreviewAdapter(getContext(), topUsers);
+        userAdapter = new UserPreviewAdapter(getActivity(), topUsers);
         recommendedAdapter = new ChallengesAdapter(getContext(), recommendedCategoryObjects, categoriesFull);
         actionSearch = view.findViewById(R.id.action_search);
 
@@ -153,8 +154,15 @@ public class DiscoverFragment extends Fragment {
 
                 for (Category category: categories) {
                     if (category.getFirstChallengePost() != null) {
-                        activeCategories.add(category);
-                        categoriesFull.add(category);
+                        try {
+                            Date date = (Date) category.fetchIfNeeded().getParseObject("firstChallengePost").fetchIfNeeded().get("createdAt");
+                        } catch (ParseException parseException) {
+                            parseException.printStackTrace();
+                        }
+                        if (System.currentTimeMillis() - category.getFirstChallengePost().getCreatedAt().getTime() < 86400000) {
+                            activeCategories.add(category);
+                            categoriesFull.add(category);
+                        }
                     }
                 }
                 adapter.notifyDataSetChanged();
@@ -177,7 +185,7 @@ public class DiscoverFragment extends Fragment {
         });
     }
 
-    private void setRecommended() {
+    public void setRecommended() {
         ParseUser currUser = ParseUser.getCurrentUser();
         // 1. Generate hashmap of normalized scores per category for current user
         userLikes = (ArrayList<String>) currUser.get("likes");
@@ -186,7 +194,7 @@ public class DiscoverFragment extends Fragment {
         queryUsersRecommended();
     }
 
-    private void advance() {
+    public void advance() {
         Collections.shuffle(allUsersRecommended);
         for (int i = 0; i < 5; i++) {
             sampleUsers.add(allUsersRecommended.get(i));
@@ -216,12 +224,14 @@ public class DiscoverFragment extends Fragment {
             //     candidate user and checking if the category is not liked by the current user.
             //     If it isn't, then we add the current category to the return list adding the
             //     overlap score to the current category's score
+            ArrayList<String> seenInThisCandidate = new ArrayList<String>();
             for (String categoryName : candLikes) {
                 if (!currHM.containsKey(categoryName)) {
-                    if (recommended.containsKey(categoryName)) {
+                    if (recommended.containsKey(categoryName) && !seenInThisCandidate.contains(categoryName)) {
                         recommended.put(categoryName, recommended.get(categoryName) + overlapScore);
                     } else {
                         recommended.put(categoryName, overlapScore);
+                        seenInThisCandidate.add(categoryName);
                     }
                 }
             }
@@ -253,12 +263,14 @@ public class DiscoverFragment extends Fragment {
         HashMap<String, Double> temp = new LinkedHashMap<String, Double>();
         for (Map.Entry<String, Double> aa : list) {
             temp.put(aa.getKey(), aa.getValue());
-            recommendedCategoryStrings.add(aa.getKey());
+            if (aa.getValue() != 0) {
+                recommendedCategoryStrings.add(aa.getKey());
+            }
         }
         return temp;
     }
 
-    private HashMap<String, Double> generateNormHM(List<String> list) {
+    public HashMap<String, Double> generateNormHM(List<String> list) {
         HashMap<String, Double> map = new HashMap<String, Double>();
         for (String categoryName : list) {
             if (map.containsKey(categoryName)) {
@@ -274,7 +286,7 @@ public class DiscoverFragment extends Fragment {
         return map;
     }
 
-    private void queryUsersRecommended() {
+    public void queryUsersRecommended() {
         List<ParseUser> users = new ArrayList<>();
         ParseQuery<ParseUser> query = ParseQuery.getQuery(ParseUser.class);
         query.whereNotEqualTo("objectId", ParseUser.getCurrentUser().getObjectId());

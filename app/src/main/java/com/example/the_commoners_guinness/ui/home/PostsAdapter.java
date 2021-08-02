@@ -88,7 +88,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
     SimpleExoPlayer simpleExoPlayer;
     PlayerView playerView;
 
-
     public PostsAdapter(FragmentActivity c, List<Post> posts) {
         this.c = c;
         this.posts = posts;
@@ -140,6 +139,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         private long timeLeftInMillis;
         private long votingPeriodMillis = 86400000; // There are 86400000 millis in one day
         private Long timeSinceFirstChallengeMillis;
+        private String votingPeriodClosed = "The voting period for this category is closed";
 
         public ViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
@@ -245,7 +245,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                 }
                 @Override
                 public void onFinish() {
-                    tvCountdown.setText("The voting period for this category is closed");
+                    tvCountdown.setText(votingPeriodClosed);
                 }
             }.start();
         }
@@ -254,11 +254,11 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             category.remove("firstChallengePost");
             category.saveInBackground();
             tvCountdown.setText("");
-            tvVotingTimeStatus.setText("The voting period for this category is closed");
+            tvVotingTimeStatus.setText(votingPeriodClosed);
             ivVote.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(c.getApplicationContext(), "The voting period for this category is closed!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(c.getApplicationContext(), votingPeriodClosed, Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -285,7 +285,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                                 parseException.printStackTrace();
                             }
                         } else {
-                            Toast.makeText(c.getApplicationContext(), "The voting period for this category has closed!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(c.getApplicationContext(), votingPeriodClosed, Toast.LENGTH_SHORT).show();
                         }
                         return super.onDoubleTap(e);
                     }
@@ -307,7 +307,12 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                             ParseUser user = ParseUser.getCurrentUser();
                             if (currentCategory.hasVoted(user)) { // user has voted in this category
                                 if (ivVote.isSelected()) { // user has voted in this category, and is unliking that post
-                                    setVoteButtons(post);
+                                    deleteVote(post);
+                                    ivVote.setImageResource(R.drawable.vote_empty);
+                                    ivVote.setSelected(false);
+                                    tvNumVotes.setText("" + (currentVoteSize - 1));
+                                    currentVoteSize -= 1;
+                                    queryForUpdateWinner(category);
                                 } else { // user has voted in this category, and is trying to like another post
                                     Toast.makeText(c.getApplicationContext(),
                                             "You can only vote for one post per category", Toast.LENGTH_SHORT).show();

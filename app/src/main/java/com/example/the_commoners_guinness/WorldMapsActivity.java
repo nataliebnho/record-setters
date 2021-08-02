@@ -70,12 +70,14 @@ public class WorldMapsActivity extends FragmentActivity implements OnMapReadyCal
                             username = post.getUser().fetchIfNeeded().getUsername();
                             category = post.getCategory().fetchIfNeeded();
                             categoryName = category.getName();
-                            if (((ParseUser)category.getWinnerUser()).fetchIfNeeded().getUsername().equals(username)) {
-                                isWinner = "true";
-                            } else {
-                                isWinner = "false";
+                            if (((ParseUser) category.getWinnerUser()) != null) {
+                                if (((ParseUser) category.getWinnerUser()).fetchIfNeeded().getUsername().equals(username)) {
+                                    isWinner = "true";
+                                } else {
+                                    isWinner = "false";
+                                }
                             }
-                        } catch (ParseException parseException) {
+                        }catch (ParseException parseException) {
                             parseException.printStackTrace();
                         }
 
@@ -97,7 +99,7 @@ public class WorldMapsActivity extends FragmentActivity implements OnMapReadyCal
 
             if (isWinner) {
                 mMap.addMarker(new MarkerOptions().position(location).title(title).
-                        icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+                        icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
             } else {
                 mMap.addMarker(new MarkerOptions().position(location).title(title));
             }

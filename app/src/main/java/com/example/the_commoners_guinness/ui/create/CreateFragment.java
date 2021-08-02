@@ -65,7 +65,7 @@ public class CreateFragment extends Fragment {
     List<String> categoryNames;
     List<Category> categoryObjects = new ArrayList<>();
     long votingPeriodMillis = 86400000;
-    boolean newestPost = false;
+    boolean isNewCategory = false;
 
     private static final int VIDEO_CAPTURE = 101;
     public static final int VIDEO_UPLOAD = 102;
@@ -145,6 +145,7 @@ public class CreateFragment extends Fragment {
         } else {
             Category newCategory = new Category();
             newCategory.setName(categoryName);
+            isNewCategory = true;
             savePostChallenge(ParseUser.getCurrentUser(), caption, newCategory);
            // savePost(ParseUser.getCurrentUser(), caption, categoryName);
         }
@@ -248,17 +249,19 @@ public class CreateFragment extends Fragment {
                 }
                 try {
                     Post firstPost = (Post) categoryObj.fetchIfNeeded().getParseObject("firstChallengePost");
-                    if (firstPost == null) {
-                        categoryObj.setWinnerUser(ParseUser.getCurrentUser());
-                        categoryObj.setFirstChallengePost(post);
+                    if (firstPost == null) { // if there is no challenge going on, there are 2 possible cases: one there is an existing category and it is now closed, or it is a new category
+                        if (isNewCategory) { // if this is a new category
+                            categoryObj.setWinner(post); //set the category's winner and winner user to the current post and user
+                            categoryObj.setWinnerUser(ParseUser.getCurrentUser());
+                        }
+                        categoryObj.setFirstChallengePost(post); // in both cases, set first challenge post to this post
                         categoryObj.saveInBackground();
-                        newestPost = true;
                     }
-                    else {
-                        long firstPostTime = categoryObj.fetchIfNeeded().getParseObject("firstChallengePost").fetchIfNeeded().getCreatedAt().getTime();
+                    else { // else, there is a challenge going on
+                        long firstPostTime = categoryObj.fetchIfNeeded().getParseObject("firstChallengePost").fetchIfNeeded().getCreatedAt().getTime(); // health check to see if the first challenge post is still active
                         long timeSinceFirstChallengeMillis = System.currentTimeMillis() - firstPostTime;
                         if (timeSinceFirstChallengeMillis > votingPeriodMillis) {
-                            categoryObj.setFirstChallengePost(post);
+                            categoryObj.setFirstChallengePost(post); //
                             categoryObj.saveInBackground();
                         }
                     }
@@ -267,10 +270,6 @@ public class CreateFragment extends Fragment {
                 }
             }
         });
-        if (newestPost) {
-            categoryObj.setWinner(post);
-            categoryObj.saveInBackground();
-        }
     }
 
     private List<String> queryCategories() {
