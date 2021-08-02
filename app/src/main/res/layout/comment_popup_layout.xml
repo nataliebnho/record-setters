@@ -23,13 +23,14 @@
             android:layout_margin="5dp"/>
     </LinearLayout>
 
-    <ListView
-        android:id="@+id/commentsListView"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/commentsRV"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/headerLayout"
-        android:layout_above="@+id/comment_section"
-        android:layout_marginBottom="0dp"/>
+        android:layout_height="524dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="57dp" />
 
     <LinearLayout
         android:id="@+id/comment_section"

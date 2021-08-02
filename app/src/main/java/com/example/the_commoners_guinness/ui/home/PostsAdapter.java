@@ -33,12 +33,14 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.the_commoners_guinness.models.Category;
 import com.example.the_commoners_guinness.ChallengeActivity;
 import com.example.the_commoners_guinness.models.Post;
 import com.example.the_commoners_guinness.R;
+import com.example.the_commoners_guinness.ui.challenges.BadgesPreviewAdapter;
 import com.example.the_commoners_guinness.ui.profile.OtherUserProfileFragment;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.LoadControl;
@@ -74,6 +76,7 @@ import org.parceler.Parcels;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -370,13 +373,10 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                 currentCategory.saveInBackground(new SaveCallback() {
                     @Override
                     public void done(ParseException e) {
-                        Log.d("voted", "done: saving category");
-                        Log.d("voted1", "deleteVote: saving postin backgoriunddfadsf");
                         post.saveInBackground();
                     }
                 });
             } else {
-                Log.d("voted2", "deleteVote: saving postin backgoriunddfadsf");
                 post.saveInBackground();
             }
         }
@@ -437,8 +437,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         public void onShowPopup(View v, Post post) throws JSONException {
             LayoutInflater layoutInflater = (LayoutInflater)c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View inflatedView = layoutInflater.inflate(R.layout.comment_popup_layout, null, false);
-            ListView listView = inflatedView.findViewById(R.id.commentsListView);
-            LinearLayout headerView = (LinearLayout)inflatedView.findViewById(R.id.headerLayout);
+            RecyclerView commentsRV = inflatedView.findViewById(R.id.commentsRV);
+            LinearLayout headerView = (LinearLayout) inflatedView.findViewById(R.id.headerLayout);
             Display display = c.getWindowManager().getDefaultDisplay();
             final Point size = new Point();
             display.getSize(size);
@@ -452,39 +452,40 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             popWindow.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
 
             ArrayList<String> commentsList = new ArrayList<String>();
+            JSONArray comments = post.getComments();
+
             ImageView postComment = inflatedView.findViewById(R.id.postComment);
             EditText etWriteComment = inflatedView.findViewById(R.id.writeComment);
+
+            commentsList.clear();
+            if (comments != null) {
+                for (int i = 0; i < comments.length(); i++) {
+                    commentsList.add(comments.getString(i));
+                    Log.i("COMMENTS", comments.getString(i));
+                }
+            }
+            CommentsAdapter adapter = new CommentsAdapter(itemView.getContext(), commentsList);
+            commentsRV.setAdapter(adapter);
+            commentsRV.setLayoutManager(new LinearLayoutManager(itemView.getContext()));
+            adapter.notifyDataSetChanged();
 
             postComment.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     String comment = etWriteComment.getText().toString();
+                    String test = ParseUser.getCurrentUser().getUsername() + ": " + etWriteComment.getText().toString();
                     try {
                         postComment(post, comment);
-                        Log.i("Comment post success: ", comment);
                         etWriteComment.setText("");
+                        commentsList.add(test);
+                        adapter.notifyDataSetChanged();
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
                 }
             });
-            setSimpleList(listView, post, commentsList);
             popWindow.setAnimationStyle(R.style.PopupAnimation);
             popWindow.showAtLocation(v, Gravity.BOTTOM, 0,100);
-        }
-
-        private void setSimpleList(ListView listView, Post post, ArrayList<String> commentsList) throws JSONException {
-            JSONArray comments = post.getComments();
-
-            if (comments == null || comments.length() == 0) {
-                commentsList.add("Be the first to comment!");
-            } else {
-                for (int i = 0; i < comments.length(); i ++) {
-                    commentsList.add((String) comments.get(i));
-                }
-            }
-
-            listView.setAdapter(new ArrayAdapter<String>(c, android.R.layout.simple_list_item_1, commentsList));
         }
 
         private void findViews() {
@@ -546,8 +547,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             }
         });
     }
-
-
 
     public void clear() {
         posts.clear();
@@ -613,15 +612,13 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                 userLikes.remove(i);
             }
         }
-        JSONArray mJSONArray = new JSONArray(Arrays.asList(userLikes));
         ParseUser.getCurrentUser().put("likes", userLikes);
     }
 
     private void postComment(Post post, String comment) throws ParseException {
-        post.setComments(comment);
+        post.setComments(ParseUser.getCurrentUser().getUsername() + ": " + comment);
         post.save();
     }
-
 
     public static String calculateTimeAgo(Date createdAt) {
 
