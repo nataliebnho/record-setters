@@ -1,5 +1,6 @@
 package com.example.the_commoners_guinness;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -7,6 +8,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.example.the_commoners_guinness.ui.challenges.DiscoverFragment;
 import com.example.the_commoners_guinness.ui.create.CreateFragment;
@@ -16,13 +18,18 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.example.the_commoners_guinness.databinding.ActivityMainBinding;
 import com.parse.FindCallback;
+import com.parse.FunctionCallback;
+import com.parse.Parse;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
+import com.parse.ParseInstallation;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
@@ -52,7 +59,12 @@ public class MainActivity extends AppCompatActivity {
         setNavView();
 
         setWorldMaps();
+
+        final HashMap<String, String> params = new HashMap<>();
+
     }
+
+
 
     private void setWorldMaps() {
         ivWorld = findViewById(R.id.ivWorld);

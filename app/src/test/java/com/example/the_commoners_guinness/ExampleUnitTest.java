@@ -63,6 +63,7 @@ class RecommendationTest {
         return finalRecommended;
     }
 
+
     public HashMap<String, Double> generateNormHM(List<String> list) {
         HashMap<String, Double> map = new HashMap<String, Double>();
         for (String categoryName : list) {

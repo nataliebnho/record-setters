@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -69,6 +70,11 @@ dependencies {
 
     implementation 'com.google.android.exoplayer:exoplayer:2.14.2'
 
+    implementation 'com.google.firebase:firebase-core:16.0.7'
+    implementation 'com.google.firebase:firebase-messaging:22.0.0'
+    implementation platform('com.google.firebase:firebase-bom:28.3.0')
 
+    implementation 'com.github.parse-community.Parse-SDK-Android:fcm:1.21.0'
+    implementation 'com.parse.bolts:bolts-android:1.4.0'
 
 }

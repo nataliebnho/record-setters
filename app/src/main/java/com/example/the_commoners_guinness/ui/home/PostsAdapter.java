@@ -2,6 +2,7 @@ package com.example.the_commoners_guinness.ui.home;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Point;
 import android.media.MediaPlayer;
@@ -10,6 +11,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -29,6 +31,7 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -36,6 +39,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.the_commoners_guinness.MainActivity;
 import com.example.the_commoners_guinness.models.Category;
 import com.example.the_commoners_guinness.ChallengeActivity;
 import com.example.the_commoners_guinness.models.Post;
@@ -61,6 +65,8 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.parse.FindCallback;
+import com.parse.FunctionCallback;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
@@ -78,6 +84,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -140,7 +147,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         private TextView tvCountdown;
         private CountDownTimer countDownTimer;
         private long timeLeftInMillis;
-        private long votingPeriodMillis = 86400000; // There are 86400000 millis in one day
+        private long votingPeriodMillis = 13200000; // There are 86400000 millis in one day
         private Long timeSinceFirstChallengeMillis;
         private String votingPeriodClosed = "The voting period for this category is closed";
 
@@ -248,9 +255,43 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
                 }
                 @Override
                 public void onFinish() {
+                    tvCountdown.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
                     tvCountdown.setText(votingPeriodClosed);
+                    cloudCodeFunction();
                 }
             }.start();
+        }
+
+        private void cloudCodeFunction() {
+            final HashMap<String, String> params = new HashMap<>();
+            // Calling the cloud code function
+            ParseCloud.callFunctionInBackground("pushsample", params, new FunctionCallback<Object>() {
+                @Override
+                public void done(Object response, ParseException exc) {
+                    if(exc == null) {
+                        // The function was executed, but it's interesting to check its response
+                        alertDisplayer("Successful Push","Check on your phone the notifications to confirm!");
+                    }
+                    else {
+                        // Something went wrong
+                        Toast.makeText(c, exc.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+        }
+
+        private void alertDisplayer(String successful_push, String s) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(c)
+                    .setTitle(successful_push)
+                    .setMessage(s)
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+            AlertDialog ok = builder.create();
+            ok.show();
         }
 
         private void votingPeriodClosedLogic() {

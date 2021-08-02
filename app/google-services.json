@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "594000851142",
+    "project_id": "recordsetterspushnotification",
+    "storage_bucket": "recordsetterspushnotification.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:594000851142:android:8ab0832712d86d13c627c7",
+        "android_client_info": {
+          "package_name": "com.example.the_commoners_guinness"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "594000851142-pctmd62248tsr5fhbvgn9iacda20rtnn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3Nvi6wYSfQy7Hpaof847HM-m-UfIx20I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "594000851142-pctmd62248tsr5fhbvgn9iacda20rtnn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
