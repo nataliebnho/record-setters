@@ -81,8 +81,8 @@
                 android:layout_height="33dp"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
-                android:layout_marginTop="110dp"
-                android:layout_marginEnd="30dp"
+                android:layout_marginTop="153dp"
+                android:layout_marginEnd="31dp"
                 app:srcCompat="@drawable/vote_empty" />
 
             <TextView
@@ -103,9 +103,20 @@
                 android:layout_below="@id/ivLike"
                 android:layout_alignParentEnd="true"
                 android:layout_marginTop="6dp"
-                android:layout_marginEnd="49dp"
+                android:layout_marginEnd="50dp"
                 android:layout_marginBottom="162dp"
                 android:text="0" />
+
+            <ImageView
+                android:id="@+id/ivComment"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="false"
+                android:layout_marginStart="303dp"
+                android:layout_marginTop="292dp"
+                app:srcCompat="@drawable/ufi_comment" />
 
             <TextView
                 android:id="@+id/tvNumComments"
@@ -118,26 +129,25 @@
                 android:text="0" />
 
             <ImageView
-                android:id="@+id/ivComment"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentEnd="false"
-                android:layout_marginStart="302dp"
-                android:layout_marginTop="249dp"
-                app:srcCompat="@drawable/ufi_comment" />
-
-            <ImageView
                 android:id="@+id/ivLike"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_below="@id/ivVote"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
-                android:layout_marginTop="181dp"
+                android:layout_marginTop="224dp"
                 android:layout_marginEnd="40dp"
                 app:srcCompat="@drawable/ufi_heart" />
+
+            <ImageView
+                android:id="@+id/ivPosterProfilePicture"
+                android:layout_width="49dp"
+                android:layout_height="52dp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginEnd="26dp"
+                android:layout_marginBottom="381dp"
+                android:src="@drawable/defaultprofilepic" />
 
         </RelativeLayout>
 

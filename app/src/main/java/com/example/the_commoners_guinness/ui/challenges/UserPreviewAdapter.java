@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.the_commoners_guinness.R;
 import com.example.the_commoners_guinness.models.Category;
 import com.example.the_commoners_guinness.ui.profile.BadgesAdapter;
@@ -126,7 +127,8 @@ public class UserPreviewAdapter extends RecyclerView.Adapter<UserPreviewAdapter.
 
             if (user.getParseFile("profilePicture") != null) {
                 String profilePicture = user.getParseFile("profilePicture").getUrl();
-                Glide.with(c).load(profilePicture).into(ivUserPreviewPic);
+                Glide.with(c).load(profilePicture).transform(new CircleCrop()).into(ivUserPreviewPic);
+
             }
             Date date = user.getCreatedAt();
             DateFormat df = new SimpleDateFormat("MM-dd-yyyy");

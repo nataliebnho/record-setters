@@ -88,6 +88,7 @@ public class HomeFragment extends Fragment {
         adapter.addFragment(followingPostsFragment, "Following");
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
+
     }
 
 }

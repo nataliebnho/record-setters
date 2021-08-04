@@ -22,6 +22,7 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.the_commoners_guinness.models.Category;
 import com.example.the_commoners_guinness.R;
 import com.example.the_commoners_guinness.ViewPagerAdapter;
@@ -49,6 +50,7 @@ public class ProfileFragment extends Fragment {
     private File photoFile;
     private TextView tvNumBadges;
     private TextView tvUsername;
+    private ImageView ivEditProfile;
 
     TabLayout tabLayout;
     ViewPager viewPager;
@@ -89,6 +91,14 @@ public class ProfileFragment extends Fragment {
                 launchCamera();
             }
         });
+
+        ivEditProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getContext(), PopupEdit.class);
+                startActivityForResult(i, 400);
+            }
+        });
     }
 
     private void findViews(View view) {
@@ -96,10 +106,12 @@ public class ProfileFragment extends Fragment {
         ivProfilePicture = view.findViewById(R.id.ivProfilePicOther);
         ivAddProfilePicture = view.findViewById(R.id.ivAddProfileImage);
         tvNumBadges = view.findViewById(R.id.tvNumBadgesOther);
+        ivEditProfile = view.findViewById(R.id.ivEditProfile);
         tvUsername.setText(ParseUser.getCurrentUser().getUsername());
+
         if (ParseUser.getCurrentUser().get("profilePicture") != null) {
             String profilePicture = ParseUser.getCurrentUser().getParseFile("profilePicture").getUrl();
-            Glide.with(getContext()).load(profilePicture).into(ivProfilePicture);
+            Glide.with(getContext()).load(profilePicture).transform(new CircleCrop()).into(ivProfilePicture);
         }
     }
 

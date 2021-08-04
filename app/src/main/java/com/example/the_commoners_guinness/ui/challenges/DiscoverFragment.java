@@ -1,5 +1,6 @@
 package com.example.the_commoners_guinness.ui.challenges;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -14,9 +15,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.SearchView;
 
+import com.example.the_commoners_guinness.MainActivity;
 import com.example.the_commoners_guinness.R;
+import com.example.the_commoners_guinness.WorldMapsActivity;
 import com.example.the_commoners_guinness.models.Category;
 import com.example.the_commoners_guinness.models.Post;
 import com.example.the_commoners_guinness.ui.home.PostsAdapter;
@@ -47,6 +51,7 @@ public class DiscoverFragment extends Fragment {
     RecyclerView rvCategories;
     RecyclerView rvUsers;
     RecyclerView rvRecommended;
+    ImageView ivWorld;
     List<Category> allCategories;
     List<Category> categoriesFull;
     List<Category> activeCategories;
@@ -91,6 +96,8 @@ public class DiscoverFragment extends Fragment {
         rvCategories = view.findViewById(R.id.rvChallengeType);
         rvUsers = view.findViewById(R.id.rvTopUsers);
         rvRecommended = view.findViewById(R.id.rvRecommended);
+        ivWorld = view.findViewById(R.id.ivWorld);
+        setWorldMaps();
 
         //allCategories = new ArrayList<>();
         activeCategories = new ArrayList<>();
@@ -108,10 +115,6 @@ public class DiscoverFragment extends Fragment {
         setAdapter(rvUsers, userAdapter);
         setAdapter(rvRecommended, recommendedAdapter);
 
-//
-//        setRVAdapter();
-//        setRVUserAdapter();
-//        setRVRecommendedAdapter();
         queryCategories();
         queryUsers();
         setRecommended();
@@ -140,6 +143,16 @@ public class DiscoverFragment extends Fragment {
         rv.addOnScrollListener(new CenterScrollListener());
     }
 
+    private void setWorldMaps() {
+        ivWorld.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getActivity(), WorldMapsActivity.class);
+                startActivity(i);
+            }
+        });
+    }
+
     private void queryCategories() {
         ParseQuery<Category> query = ParseQuery.getQuery(Category.class);
         query.setLimit(20);
@@ -159,7 +172,7 @@ public class DiscoverFragment extends Fragment {
                         } catch (ParseException parseException) {
                             parseException.printStackTrace();
                         }
-                        if (System.currentTimeMillis() - category.getFirstChallengePost().getCreatedAt().getTime() < 86400000) {
+                        if (category.getFirstChallengePost().getCreatedAt() != null && System.currentTimeMillis() - category.getFirstChallengePost().getCreatedAt().getTime() < 86400000) {
                             activeCategories.add(category);
                             categoriesFull.add(category);
                         }

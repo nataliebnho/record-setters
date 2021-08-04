@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'com.google.gms.google-services'
+    id 'com.onesignal.androidsdk.onesignal-gradle-plugin'
 }
 
 android {
@@ -9,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.the_commoners_guinness"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -77,4 +78,5 @@ dependencies {
     implementation 'com.github.parse-community.Parse-SDK-Android:fcm:1.21.0'
     implementation 'com.parse.bolts:bolts-android:1.4.0'
 
+    implementation 'com.onesignal:OneSignal:[4.0.0, 4.99.99]'
 }

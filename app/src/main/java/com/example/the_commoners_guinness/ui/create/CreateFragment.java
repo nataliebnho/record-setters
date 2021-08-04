@@ -1,11 +1,16 @@
 package com.example.the_commoners_guinness.ui.create;
 
+import android.app.AlarmManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -20,6 +25,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.MediaController;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.VideoView;
 
@@ -33,9 +39,12 @@ import com.example.the_commoners_guinness.SetLocationMapsActivity;
 import com.example.the_commoners_guinness.models.Post;
 import com.example.the_commoners_guinness.R;
 import com.parse.FindCallback;
+import com.parse.FunctionCallback;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseGeoPoint;
+import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
@@ -47,10 +56,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class CreateFragment extends Fragment {
 
+    public static final String CHANNEL = "channel";
     public final String TAG = "CreateFragment";
     ImageButton btnTakeVideo;
     ImageView btnUploadPhoto;
@@ -64,8 +75,9 @@ public class CreateFragment extends Fragment {
     AutoCompleteTextView actvCategory;
     List<String> categoryNames;
     List<Category> categoryObjects = new ArrayList<>();
-    long votingPeriodMillis = 86400000;
+    long VOTING_PERIOD_MILLIS = 10000;
     boolean isNewCategory = false;
+    View placeholder;
 
     private static final int VIDEO_CAPTURE = 101;
     public static final int VIDEO_UPLOAD = 102;
@@ -93,6 +105,10 @@ public class CreateFragment extends Fragment {
         btnTakeVideo = view.findViewById(R.id.btnTakeVideoChallenge);
         btnUploadPhoto = view.findViewById(R.id.ivUpload);
         vvVideoToPost = view.findViewById(R.id.vvVideoToPostChallenge);
+        placeholder = view.findViewById(R.id.placeholder);
+        RelativeLayout video_view_container = view.findViewById(R.id.video_view_container);
+        video_view_container.setClipToOutline(true);
+
         etCaption = view.findViewById(R.id.etCaptionChallenge);
         btnShare = view.findViewById(R.id.btnPostChallenge);
         btnAddLocation = view.findViewById(R.id.btnAddLocation);
@@ -183,6 +199,9 @@ public class CreateFragment extends Fragment {
         if (requestCode == VIDEO_UPLOAD) {
             if (resultCode == getActivity().RESULT_OK) {
                if (data != null) {
+                   btnTakeVideo.setVisibility(View.GONE);
+                   btnUploadPhoto.setVisibility(View.GONE);
+                   placeholder.setVisibility(View.GONE);
                    Uri uri = data.getData();
                    createDocumentFileFromFile(uri);
                }
@@ -192,6 +211,9 @@ public class CreateFragment extends Fragment {
 
     private void onActivityResultVideoCapture(int requestCode, int resultCode, Intent data, VideoView videoView) {
         if (resultCode == getActivity().RESULT_OK) {
+            btnTakeVideo.setVisibility(View.GONE);
+            btnUploadPhoto.setVisibility(View.GONE);
+            placeholder.setVisibility(View.GONE);
             videoView.setVideoURI(data.getData());
             videoView.setMediaController(new MediaController(getContext()));
             videoView.requestFocus();
@@ -256,15 +278,23 @@ public class CreateFragment extends Fragment {
                         }
                         categoryObj.setFirstChallengePost(post); // in both cases, set first challenge post to this post
                         categoryObj.saveInBackground();
+                        scheduleNotificationAlarm(categoryObj.getName(), VOTING_PERIOD_MILLIS);
                     }
                     else { // else, there is a challenge going on
                         long firstPostTime = categoryObj.fetchIfNeeded().getParseObject("firstChallengePost").fetchIfNeeded().getCreatedAt().getTime(); // health check to see if the first challenge post is still active
                         long timeSinceFirstChallengeMillis = System.currentTimeMillis() - firstPostTime;
-                        if (timeSinceFirstChallengeMillis > votingPeriodMillis) {
-                            categoryObj.setFirstChallengePost(post); //
+                        if (timeSinceFirstChallengeMillis > VOTING_PERIOD_MILLIS) { // this challenge has expired
+                            categoryObj.setFirstChallengePost(post); // reset first challenge post
                             categoryObj.saveInBackground();
+                            scheduleNotificationAlarm(categoryObj.getName(), VOTING_PERIOD_MILLIS);
+                        } else { // this challenge is active
+                            scheduleNotificationAlarm(categoryObj.getName(), timeSinceFirstChallengeMillis);
                         }
+
                     }
+//                    // create or subscribe to a push notification channel
+                    ParsePush.subscribeInBackground(categoryObj.getName());
+//                    ParseUser.getCurrentUser().getJSONArray("subscriptions").put(categoryObj.getName());
                 } catch (ParseException parseException) {
                     parseException.printStackTrace();
                 }
@@ -289,6 +319,51 @@ public class CreateFragment extends Fragment {
         });
         return categoryNames;
     }
+
+    public void scheduleNotificationAlarm(String categoryName, long timer) {
+        Context context = getContext();
+        createNotificationChannel();
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(context.ALARM_SERVICE);
+        long timeAtCreatePost = System.currentTimeMillis();
+
+        Intent intent = new Intent(getActivity(), ReminderBroadcast.class);
+        intent.putExtra("categoryName", categoryName);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+
+        alarmManager.set(AlarmManager.RTC_WAKEUP, timeAtCreatePost + timer, pendingIntent);
+    }
+
+    private void createNotificationChannel() {
+        Context context = getContext();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "TestingChannel";
+            String description = "Channel for reminder";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL, name, importance);
+            channel.setDescription(description);
+            NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    private void cloudCodeFunction() {
+        final HashMap<String, String> params = new HashMap<>();
+        // Calling the cloud code function
+        ParseCloud.callFunctionInBackground("pushsample", params, new FunctionCallback<Object>() {
+            @Override
+            public void done(Object response, ParseException exc) {
+                if(exc == null) {
+                    // The function was executed, but it's interesting to check its response
+                    Toast.makeText(getContext(), "Successful push", Toast.LENGTH_LONG).show();
+                }
+                else {
+                    // Something went wrong
+                    Toast.makeText(getContext(), exc.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
+
 
 }
 

@@ -69,6 +69,12 @@ public class HomeFollowingFragment extends Fragment {
         rvPostsFollowing.setLayoutManager(new LinearLayoutManager(getContext()));
     }
 
+//    @Override
+//    public void onPause() {
+//        super.onPause();
+//        getActivity().finish();
+//    }
+
     private void configureSwipeContainer(View view) {
         swipeContainerFollowing = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainerFollowing);
         swipeContainerFollowing.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {

@@ -39,6 +39,8 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.the_commoners_guinness.MainActivity;
 import com.example.the_commoners_guinness.models.Category;
 import com.example.the_commoners_guinness.ChallengeActivity;
@@ -145,9 +147,10 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
         private TextView tvNumLikes;
         private ImageView ivComment;
         private TextView tvCountdown;
+        private ImageView ivPosterProfilePicture;
         private CountDownTimer countDownTimer;
         private long timeLeftInMillis;
-        private long votingPeriodMillis = 13200000; // There are 86400000 millis in one day
+        private long votingPeriodMillis = 86400000; // There are 86400000 millis in one day
         private Long timeSinceFirstChallengeMillis;
         private String votingPeriodClosed = "The voting period for this category is closed";
 
@@ -161,6 +164,10 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             tvCaption.setText(post.getCaption());
             category = post.getCategory();
             tvCategory.setText(category.fetchIfNeeded().getString("name"));
+            if (post.getUser().get("profilePicture") != null) {
+                String profilePicture = post.getUser().getParseFile("profilePicture").getUrl();
+                Glide.with(c).load(profilePicture).transform(new CircleCrop()).into(ivPosterProfilePicture);
+            }
 
             ivChallenge.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -542,6 +549,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder>{
             ivLike = itemView.findViewById(R.id.ivLike);
             tvNumLikes = itemView.findViewById(R.id.tvNumLikes);
             ivComment = itemView.findViewById(R.id.ivComment);
+            ivPosterProfilePicture = itemView.findViewById(R.id.ivPosterProfilePicture);
         }
 
     }

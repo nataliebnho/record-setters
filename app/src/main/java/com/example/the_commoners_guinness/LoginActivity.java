@@ -20,6 +20,7 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.the_commoners_guinness.databinding.ActivityLoginBinding;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
+import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
 
@@ -38,9 +39,11 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         if (ParseUser.getCurrentUser() != null) {
+            configurePushNotifications();
             goMainActivity();
         }
 
+        configurePushNotifications();
         etUsername = findViewById(R.id.etUsername);
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
@@ -63,6 +66,13 @@ public class LoginActivity extends AppCompatActivity {
                 login(username, password);
             }
         });
+    }
+
+    public static void configurePushNotifications() {
+        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+        installation.put("GCMSenderId", "594000851142");
+        installation.put("user", ParseUser.getCurrentUser());
+        installation.saveInBackground();
     }
 
     private void login(String username, String password) {

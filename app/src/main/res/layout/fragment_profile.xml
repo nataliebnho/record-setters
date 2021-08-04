@@ -43,7 +43,6 @@
         android:layout_alignParentEnd="true"
         android:layout_marginTop="86dp"
         android:layout_marginEnd="143dp"
-        android:backgroundTint="#2196F3"
         android:src="@android:drawable/btn_plus" />
 
     <TextView
@@ -140,5 +139,15 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/tvBadgesOther"
         app:layout_behavior = "com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"/>
+
+    <ImageView
+        android:id="@+id/ivEditProfile"
+        android:layout_width="20dp"
+        android:layout_height="22dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="135dp"
+        android:layout_marginEnd="156dp"
+        android:src="@android:drawable/ic_menu_edit" />
 
 </RelativeLayout>

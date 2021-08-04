@@ -16,14 +16,23 @@
         app:lottie_loop="true"
         app:lottie_url="https://assets10.lottiefiles.com/packages/lf20_7g400pd2.json" />
 
-    <TextView
-        android:id="@+id/tvRecordSetters"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+    <ImageView
+        android:id="@+id/ivAppName"
+        android:layout_width="204dp"
+        android:layout_height="112dp"
+        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="92dp"
-        android:text="RECORD SETTERS"
-        android:textSize="34sp" />
+        android:layout_marginTop="42dp"
+        app:srcCompat="@drawable/app_logo" />
+
+    <!--    <TextView-->
+<!--        android:id="@+id/tvRecordSetters"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_alignParentBottom="true"-->
+<!--        android:layout_centerHorizontal="true"-->
+<!--        android:layout_marginBottom="92dp"-->
+<!--        android:text="RECORD SETTERS"-->
+<!--        android:textSize="34sp" />-->
 
 </RelativeLayout>

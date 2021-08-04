@@ -1,5 +1,9 @@
 package com.example.the_commoners_guinness;
 
+import android.app.AlarmManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
@@ -12,6 +16,7 @@ import android.widget.Toast;
 
 import com.example.the_commoners_guinness.ui.challenges.DiscoverFragment;
 import com.example.the_commoners_guinness.ui.create.CreateFragment;
+import com.example.the_commoners_guinness.ui.create.ReminderBroadcast;
 import com.example.the_commoners_guinness.ui.home.HomeFragment;
 import com.example.the_commoners_guinness.ui.profile.ProfileFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -30,6 +35,8 @@ import com.parse.Parse;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
+import com.parse.ParsePush;
+import com.parse.ParsePushBroadcastReceiver;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
@@ -37,6 +44,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -57,24 +65,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         setNavView();
-
-        setWorldMaps();
-
         final HashMap<String, String> params = new HashMap<>();
-
-    }
-
-
-
-    private void setWorldMaps() {
-        ivWorld = findViewById(R.id.ivWorld);
-        ivWorld.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(MainActivity.this, WorldMapsActivity.class);
-                startActivity(i);
-            }
-        });
     }
 
     private void setNavView() {
