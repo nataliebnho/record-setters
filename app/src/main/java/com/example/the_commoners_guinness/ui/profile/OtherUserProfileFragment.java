@@ -126,7 +126,6 @@ public class OtherUserProfileFragment extends Fragment {
                 }
             }
         });
-
     }
 
     private void findViews(View view) {

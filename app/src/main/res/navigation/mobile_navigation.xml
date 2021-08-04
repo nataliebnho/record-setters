@@ -12,6 +12,12 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
+        android:id="@+id/navigation_watchList"
+        android:name="com.example.the_commoners_guinness.ui.watchList.WatchListFragment"
+        android:label="Watch list"
+        tools:layout="@layout/fragment_watch_list" />
+
+    <fragment
         android:id="@+id/navigation_create"
         android:name="com.example.the_commoners_guinness.ui.create.CreateFragment"
         android:label="@string/title_create"

@@ -14,11 +14,13 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.example.the_commoners_guinness.models.Category;
 import com.example.the_commoners_guinness.ui.challenges.DiscoverFragment;
 import com.example.the_commoners_guinness.ui.create.CreateFragment;
 import com.example.the_commoners_guinness.ui.create.ReminderBroadcast;
 import com.example.the_commoners_guinness.ui.home.HomeFragment;
 import com.example.the_commoners_guinness.ui.profile.ProfileFragment;
+import com.example.the_commoners_guinness.ui.watchList.WatchListFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.NonNull;
@@ -56,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private ActivityMainBinding binding;
     private ImageView ivWorld;
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,6 +86,9 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case R.id.navigation_viewChallenges:
                         fragment = new DiscoverFragment();
+                        break;
+                    case R.id.navigation_watchList:
+                        fragment = new WatchListFragment();
                         break;
                     case R.id.navigation_home:
                     default:

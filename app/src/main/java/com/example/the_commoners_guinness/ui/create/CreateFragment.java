@@ -61,7 +61,6 @@ import java.util.List;
 
 public class CreateFragment extends Fragment {
 
-    public static final String CHANNEL = "channel";
     public final String TAG = "CreateFragment";
     ImageButton btnTakeVideo;
     ImageView btnUploadPhoto;
@@ -300,6 +299,7 @@ public class CreateFragment extends Fragment {
                 }
             }
         });
+        Toast.makeText(getContext(), "Post save was successful!", Toast.LENGTH_SHORT).show();
     }
 
     private List<String> queryCategories() {
@@ -322,7 +322,6 @@ public class CreateFragment extends Fragment {
 
     public void scheduleNotificationAlarm(String categoryName, long timer) {
         Context context = getContext();
-        createNotificationChannel();
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(context.ALARM_SERVICE);
         long timeAtCreatePost = System.currentTimeMillis();
 
@@ -331,19 +330,6 @@ public class CreateFragment extends Fragment {
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
 
         alarmManager.set(AlarmManager.RTC_WAKEUP, timeAtCreatePost + timer, pendingIntent);
-    }
-
-    private void createNotificationChannel() {
-        Context context = getContext();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "TestingChannel";
-            String description = "Channel for reminder";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(CHANNEL, name, importance);
-            channel.setDescription(description);
-            NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
     }
 
     private void cloudCodeFunction() {

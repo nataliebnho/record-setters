@@ -10,8 +10,9 @@
         android:id="@+id/tvLeaderboardCategory"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="15dp"
         android:text="Loading..."
         android:textSize="24sp"
         android:textStyle="bold" />
@@ -20,7 +21,7 @@
         android:id="@+id/swipeContainer"
         android:layout_width="match_parent"
         android:layout_height="479dp"
-        android:layout_below="@+id/cvLeaderboardThird"
+        android:layout_below="@id/divider5"
         android:layout_alignParentStart="true"
         android:layout_marginStart="0dp"
         android:layout_marginTop="20dp">
@@ -42,9 +43,10 @@
         android:id="@+id/cvLeaderboardFirst"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:layout_below="@+id/tvLeaderboardCategory"
+        android:layout_below="@+id/cvWatchList"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="10dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="9dp"
         android:layout_marginTop="15dp"
         android:layout_marginEnd="10dp">
 
@@ -82,6 +84,51 @@
             android:layout_marginTop="12dp"
             android:text="0" />
 
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cvLeaderboardThird"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_below="@+id/cvLeaderboardSecond"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="30dp">
+
+        <TextView
+            android:id="@+id/tvNumVotesThirdD"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="310dp"
+            android:layout_marginTop="12dp"
+            android:text="0" />
+
+        <ImageView
+            android:id="@+id/imageView6"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginLeft="280dp"
+            android:layout_marginTop="8dp"
+            android:src="@drawable/vote" />
+
+        <TextView
+            android:id="@+id/tvUsernameThirdCV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="60dp"
+            android:layout_marginTop="12dp"
+            android:text="This could be you..."
+            android:textSize="12sp"
+            android:textStyle="italic" />
+
+        <ImageView
+            android:id="@+id/imageView3"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="6dp"
+            android:src="@drawable/bronze" />
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
@@ -130,48 +177,49 @@
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/cvLeaderboardThird"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_below="@+id/cvLeaderboardSecond"
+        android:id="@+id/cvWatchList"
+        android:layout_width="181dp"
+        android:layout_height="31dp"
+        android:layout_below="@+id/tvLeaderboardCategory"
         android:layout_centerHorizontal="true"
-        android:layout_marginStart="30dp"
         android:layout_marginTop="10dp"
-        android:layout_marginEnd="30dp">
+        app:cardCornerRadius="8dp"
+        app:cardElevation="8dp">
 
-        <TextView
-            android:id="@+id/tvNumVotesThirdD"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="310dp"
-            android:layout_marginTop="12dp"
-            android:text="0" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-        <ImageView
-            android:id="@+id/imageView6"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginLeft="280dp"
-            android:layout_marginTop="8dp"
-            android:src="@drawable/vote" />
+            <TextView
+                android:id="@+id/tvAddToWatchList"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="15dp"
+                android:text="Add to your watch list"
+                android:textSize="12sp" />
 
-        <TextView
-            android:id="@+id/tvUsernameThirdCV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="60dp"
-            android:layout_marginTop="12dp"
-            android:text="This could be you..."
-            android:textSize="12sp"
-            android:textStyle="italic" />
+            <ImageView
+                android:id="@+id/ivWatchList"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="15dp"
+                android:src="@drawable/not_watched" />
+        </RelativeLayout>
 
-        <ImageView
-            android:id="@+id/imageView3"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginTop="6dp"
-            android:src="@drawable/bronze" />
     </androidx.cardview.widget.CardView>
+
+    <View
+        android:id="@+id/divider5"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/cvLeaderboardThird"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="10dp"
+        android:background="?android:attr/listDivider" />
 
 </RelativeLayout>

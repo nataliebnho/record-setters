@@ -8,6 +8,7 @@ import android.util.Log;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.example.the_commoners_guinness.ParseApplication;
 import com.example.the_commoners_guinness.R;
 import com.parse.ParsePushBroadcastReceiver;
 
@@ -19,14 +20,10 @@ public class ReminderBroadcast extends BroadcastReceiver {
         // empty constructor
     }
 
-    public ReminderBroadcast(String categoryName) {
-        this.categoryName = categoryName;
-    }
-
     @Override
     public void onReceive(Context context, Intent intent) {
         String categoryName = intent.getStringExtra("categoryName");
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CreateFragment.CHANNEL)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, ParseApplication.CHANNEL)
                 .setSmallIcon(R.drawable.silver)
                 .setContentTitle("Record Setters")
                 .setContentText("Winner for " + categoryName +  " has been released")

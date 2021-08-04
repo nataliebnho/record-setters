@@ -3,15 +3,22 @@ package com.example.the_commoners_guinness.ui.profile;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +41,7 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import org.jetbrains.annotations.NotNull;
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -51,6 +59,7 @@ public class ProfileFragment extends Fragment {
     private TextView tvNumBadges;
     private TextView tvUsername;
     private ImageView ivEditProfile;
+    private TextView tvBioOther;
 
     TabLayout tabLayout;
     ViewPager viewPager;
@@ -95,8 +104,52 @@ public class ProfileFragment extends Fragment {
         ivEditProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(getContext(), PopupEdit.class);
-                startActivityForResult(i, 400);
+//                Intent i = new Intent(getContext(), PopupEdit.class);
+//                startActivityForResult(i, 400);
+                displayPopUpWindow();
+            }
+        });
+    }
+
+    private void displayPopUpWindow() {
+        View layout = getLayoutInflater().inflate(R.layout.activity_popup_edit,null);
+
+        EditText etEditName = layout.findViewById(R.id.etEditName);
+        EditText etEditBio = layout.findViewById(R.id.etEditBio);
+        EditText etEditEmail = layout.findViewById(R.id.etEditEmail);
+
+        etEditName.setText(ParseUser.getCurrentUser().getUsername());
+
+        if (ParseUser.getCurrentUser().get("bio") != null) {
+            etEditBio.setText((String) ParseUser.getCurrentUser().get("bio"));
+        }
+
+        final PopupWindow popup = new PopupWindow(getContext());
+        popup.setContentView(layout);
+        popup.setOutsideTouchable(true);
+        popup.setFocusable(true);
+
+        DisplayMetrics dm = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getRealMetrics(dm);
+
+        int width = dm.widthPixels;
+        int height = dm.heightPixels;
+
+        popup.setWidth((int)(width * 0.8));
+        popup.setHeight((int) (height * 0.7));
+        popup.showAtLocation(layout, Gravity.CENTER, 0, 0);
+        popup.setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+
+        Button button = layout.findViewById(R.id.btnSave);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View layout) {
+                popup.dismiss();
+                if (etEditBio.getText() != null) {
+                    ParseUser.getCurrentUser().put("bio", etEditBio.getText().toString());
+                    ParseUser.getCurrentUser().saveInBackground();
+                    tvBioOther.setText(etEditBio.getText().toString());
+
+                }
             }
         });
     }
@@ -107,7 +160,12 @@ public class ProfileFragment extends Fragment {
         ivAddProfilePicture = view.findViewById(R.id.ivAddProfileImage);
         tvNumBadges = view.findViewById(R.id.tvNumBadgesOther);
         ivEditProfile = view.findViewById(R.id.ivEditProfile);
+        tvBioOther = view.findViewById(R.id.tvBioOther);
+
         tvUsername.setText(ParseUser.getCurrentUser().getUsername());
+        if (ParseUser.getCurrentUser().get("bio") != null) {
+            tvBioOther.setText((String) ParseUser.getCurrentUser().get("bio"));
+        }
 
         if (ParseUser.getCurrentUser().get("profilePicture") != null) {
             String profilePicture = ParseUser.getCurrentUser().getParseFile("profilePicture").getUrl();
